@@ -24,7 +24,8 @@ const Billing = () => {
       setShowSuccessMessage(true);
       setTimeout(() => setShowSuccessMessage(false), 5000);
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [successParam]);
 
   const fetchBillingData = async () => {
     try {

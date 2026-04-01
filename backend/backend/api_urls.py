@@ -15,7 +15,7 @@ from .payments_views import (
     StripeWebhookView,
 )
 from core.views import (
-    RegisterView, WebsiteViewSet,
+    RegisterView, UserProfileView, WebsiteViewSet,
     BillingPlanListView, UserBillingPlanView, SelectBillingPlanView, CheckPlanSelectionView,
     TemplateListView, TemplateDetailView, UserTemplateViewSet,
     TemplatePurchaseView, TemplateOrderViewSet
@@ -31,6 +31,7 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('register/', RegisterView.as_view(), name='register'),
+    path('user-profile/', UserProfileView.as_view(), name='user_profile'),
     
     # Websites
     path('', include(router.urls)),

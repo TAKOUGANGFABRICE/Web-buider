@@ -25,7 +25,7 @@ class StripeCheckoutSessionView(View):
                     'price': price_id,
                     'quantity': 1,
                 }],
-                mode='payment',
+                mode='subscription',
                 success_url=settings.STRIPE_SUCCESS_URL,
                 cancel_url=settings.STRIPE_CANCEL_URL,
             )

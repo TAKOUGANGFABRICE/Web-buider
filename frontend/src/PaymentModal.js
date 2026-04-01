@@ -6,7 +6,6 @@ const PaymentModal = ({ isOpen, onClose, plan = 'premium' }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const [paymentId, setPaymentId] = useState(null);
   
   // Card form state
   const [cardNumber, setCardNumber] = useState('');
@@ -113,8 +112,6 @@ const PaymentModal = ({ isOpen, onClose, plan = 'premium' }) => {
         throw new Error(data.error || 'Failed to create payment intent');
       }
 
-      setPaymentId(data.paymentId);
-
       // Simulate Stripe payment confirmation
       setTimeout(async () => {
         // Confirm payment
@@ -174,7 +171,6 @@ const PaymentModal = ({ isOpen, onClose, plan = 'premium' }) => {
         throw new Error(data.error || 'Failed to process mobile money payment');
       }
 
-      setPaymentId(data.paymentId);
       setMobileInstructions(data);
       setLoading(false);
       setVerifyingMobile(true);
@@ -334,7 +330,7 @@ const PaymentModal = ({ isOpen, onClose, plan = 'premium' }) => {
                   <span className="stripe-badge">stripe</span>
                 </div>
                 <p className="payment-note">
-                  Your payment is securely processed by Stripe. Soon to called.
+                  Your payment is securely processed by Stripe. Coming soon.
                 </p>
               </form>
             ) : (

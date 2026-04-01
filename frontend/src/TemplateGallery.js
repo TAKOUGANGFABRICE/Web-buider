@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './TemplateGallery.css';
 
 const TemplateGallery = () => {
@@ -26,6 +26,7 @@ const TemplateGallery = () => {
 
   useEffect(() => {
     fetchTemplates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category, filter]);
 
   const fetchTemplates = async () => {

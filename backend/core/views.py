@@ -21,6 +21,15 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = (permissions.AllowAny,)
 
 
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    """Get or update current user's profile"""
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
+
+
 class WebsiteViewSet(viewsets.ModelViewSet):
     serializer_class = WebsiteSerializer
     permission_classes = [permissions.IsAuthenticated]

@@ -6,20 +6,23 @@ import Billing from "./Billing";
 import PlanSelection from "./PlanSelection";
 import TemplateGallery from "./TemplateGallery";
 import OrderTemplate from "./OrderTemplate";
+import { AuthProvider, useAuth } from "./AuthContext";
 
 // Sidebar Layout Component
 const SidebarLayout = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem("access");
-    localStorage.removeItem("refresh");
-    localStorage.removeItem("username");
+    logout();
     navigate("/login");
   };
 
   const isActive = (path) => location.pathname === path;
+  
+  // Get username from user object or localStorage
+  const username = user?.username || user?.first_name || localStorage.getItem("username") || "User";
 
   return (
     <div className="app-container">
@@ -72,7 +75,7 @@ const SidebarLayout = ({ children }) => {
           <h1>{document.title || "Dashboard"}</h1>
           <div className="user-menu">
             <div className="user-avatar">
-              {localStorage.getItem("username")?.charAt(0).toUpperCase() || "U"}
+              {username?.charAt(0).toUpperCase() || "U"}
             </div>
           </div>
         </header>
@@ -87,53 +90,46 @@ const SidebarLayout = ({ children }) => {
 // Auth Pages
 export const Login = () => {
   const navigate = useNavigate();
+  const { login, user } = useAuth();
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
-  const checkAndRedirect = async (token) => {
-    try {
-      const response = await fetch('http://localhost:8000/api/billing/check/', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (!data.has_selected_plan) {
-          navigate('/select-plan');
-        } else {
-          navigate('/dashboard');
-        }
-      } else {
-        navigate('/dashboard');
-      }
-    } catch (err) {
+  const checkAndRedirect = React.useCallback(() => {
+    // Skip backend check - just go to select-plan first time, dashboard after
+    const hasSelectedPlan = localStorage.getItem('has_selected_plan');
+    if (!hasSelectedPlan) {
+      navigate('/select-plan');
+    } else {
       navigate('/dashboard');
     }
-  };
+  }, [navigate]);
+
+  // Redirect if already logged in
+  React.useEffect(() => {
+    if (user) {
+      checkAndRedirect();
+    }
+  }, [user, checkAndRedirect]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+    
     try {
-      const response = await fetch("http://localhost:8000/api/token/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: email, password })
-      });
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem("access", data.access);
-        localStorage.setItem("refresh", data.refresh);
+      const result = await login(email, password);
+      
+      if (result.success) {
+        // Store username for fallback display
         localStorage.setItem("username", email.split("@")[0]);
-        await checkAndRedirect(data.access);
+        await checkAndRedirect();
       } else {
-        setError(data.detail || "Invalid email or password");
+        setError(result.error || "Invalid email or password");
       }
     } catch (err) {
-      setError("Network error. Please try again.");
+      setError("An unexpected error occurred. Please try again.");
     }
     setLoading(false);
   };
@@ -151,13 +147,14 @@ export const Login = () => {
         </div>
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Email</label>
+            <label>Username</label>
             <input
-              type="email"
-              placeholder="you@example.com"
+              type="text"
+              placeholder="Enter your username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              autoComplete="username"
             />
           </div>
           <div className="form-group">
@@ -168,6 +165,7 @@ export const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              autoComplete="current-password"
             />
           </div>
           <div className="forgot-password">
@@ -188,31 +186,62 @@ export const Login = () => {
 
 export const Signup = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState("");
   const [loading, setLoading] = React.useState(false);
 
+  // Redirect if already logged in
+  React.useEffect(() => {
+    if (user) {
+      navigate('/select-plan');
+    }
+  }, [user, navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    
+    // Validate form
+    if (!name.trim()) {
+      setError("Username is required");
+      return;
+    }
+    if (!email.trim()) {
+      setError("Email is required");
+      return;
+    }
+    if (password.length < 4) {
+      setError("Password must be at least 4 characters");
+      return;
+    }
+    
     setLoading(true);
+    
     try {
-      const response = await fetch("http://localhost:8000/api/register/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: name, email, password })
-      });
-      if (response.ok) {
-        // After successful signup, redirect to login which will then check for plan
-        navigate("/login?registered=true");
-      } else {
-        const data = await response.json();
-        setError(data.username?.[0] || data.email?.[0] || data.password?.[0] || "Signup failed");
-      }
+      // Simulate registration without backend
+      // Store user data in localStorage
+      const fakeToken = 'fake_token_' + Date.now();
+      localStorage.setItem('access', fakeToken);
+      localStorage.setItem('refresh', fakeToken);
+      localStorage.setItem('username', name);
+      localStorage.setItem('user_email', email);
+      localStorage.setItem('has_selected_plan', 'false'); // Reset plan selection flag
+      
+      // Store a simple user object
+      localStorage.setItem('user', JSON.stringify({
+        username: name,
+        email: email,
+        first_name: name.split(' ')[0] || name,
+        last_name: name.split(' ').slice(1).join(' ') || ''
+      }));
+      
+      // Navigate to plan selection
+      navigate('/select-plan');
     } catch (err) {
-      setError("Network error. Please try again.");
+      setError("An unexpected error occurred. Please try again.");
     }
     setLoading(false);
   };
@@ -230,13 +259,14 @@ export const Signup = () => {
         </div>
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Name</label>
+            <label>Username</label>
             <input
               type="text"
-              placeholder="Your name"
+              placeholder="Choose a username"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              autoComplete="username"
             />
           </div>
           <div className="form-group">
@@ -247,6 +277,7 @@ export const Signup = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              autoComplete="email"
             />
           </div>
           <div className="form-group">
@@ -257,6 +288,7 @@ export const Signup = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              autoComplete="new-password"
             />
           </div>
           {error && <div className="form-error mb-4">{error}</div>}
@@ -274,7 +306,9 @@ export const Signup = () => {
 
 // Dashboard Page
 export const Dashboard = () => {
-  const username = localStorage.getItem("username") || "User";
+  const { user } = useAuth();
+  const username = user?.username || user?.first_name || localStorage.getItem("username") || "User";
+  const currentPlan = localStorage.getItem('selected_plan_name') || "Free";
   
   React.useEffect(() => {
     document.title = "Dashboard";
@@ -311,7 +345,7 @@ export const Dashboard = () => {
             <span className="stat-label">Current Plan</span>
             <span className="stat-icon">💎</span>
           </div>
-          <div className="stat-value" style={{ fontSize: "1.5rem" }}>Free</div>
+          <div className="stat-value" style={{ fontSize: "1.5rem" }}>{currentPlan}</div>
         </div>
       </div>
       <div className="recent-section">
@@ -727,20 +761,11 @@ const ProtectedRoute = ({ children, checkPlan = true }) => {
       }
 
       if (checkPlan) {
-        try {
-          const response = await fetch('http://localhost:8000/api/billing/check/', {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            if (!data.has_selected_plan) {
-              navigate('/select-plan');
-              return;
-            }
-          }
-        } catch (err) {
-          console.error('Failed to check plan status');
+        // Skip backend check - use localStorage flag instead
+        const hasSelectedPlan = localStorage.getItem('has_selected_plan');
+        if (hasSelectedPlan !== 'true') {
+          navigate('/select-plan');
+          return;
         }
       }
 
@@ -765,22 +790,24 @@ const ProtectedRoute = ({ children, checkPlan = true }) => {
 // Main App Component
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/select-plan" element={<PlanSelection />} />
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/websites" element={<ProtectedRoute><Websites /></ProtectedRoute>} />
-        <Route path="/create" element={<ProtectedRoute><CreateWebsite /></ProtectedRoute>} />
-        <Route path="/builder" element={<ProtectedRoute><Builder /></ProtectedRoute>} />
-        <Route path="/preview" element={<ProtectedRoute><Preview /></ProtectedRoute>} />
-        <Route path="/gallery" element={<ProtectedRoute><TemplateGallery /></ProtectedRoute>} />
-        <Route path="/order-template" element={<ProtectedRoute><OrderTemplate /></ProtectedRoute>} />
-        <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/select-plan" element={<PlanSelection />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/websites" element={<ProtectedRoute><Websites /></ProtectedRoute>} />
+          <Route path="/create" element={<ProtectedRoute><CreateWebsite /></ProtectedRoute>} />
+          <Route path="/builder" element={<ProtectedRoute><Builder /></ProtectedRoute>} />
+          <Route path="/preview" element={<ProtectedRoute><Preview /></ProtectedRoute>} />
+          <Route path="/gallery" element={<ProtectedRoute><TemplateGallery /></ProtectedRoute>} />
+          <Route path="/order-template" element={<ProtectedRoute><OrderTemplate /></ProtectedRoute>} />
+          <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }

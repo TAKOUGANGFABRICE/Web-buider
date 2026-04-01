@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './OrderTemplate.css';
 
@@ -11,7 +11,6 @@ const OrderTemplate = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const [userPlan, setUserPlan] = useState(null);
   const [canOrder, setCanOrder] = useState(false);
 
   const orderTypes = [
@@ -20,37 +19,38 @@ const OrderTemplate = () => {
     { value: 'modification', label: 'Modification Request', icon: '🔧', description: 'Request changes or additions to an existing website' },
   ];
 
-  useEffect(() => {
-    checkUserPlan();
-  }, []);
-
-  const checkUserPlan = async () => {
-    try {
-      const token = localStorage.getItem('access');
-      if (!token) {
-        navigate('/login');
-        return;
-      }
-
-      const response = await fetch('http://localhost:8000/api/billing/', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setUserPlan(data);
-        
-        if (data.plan && data.plan.can_order_custom_template) {
-          setCanOrder(true);
-        } else {
-          setCanOrder(false);
-          setError('Your current plan does not support custom template orders. Please upgrade to access this feature.');
+  // Check user plan on component mount
+  React.useEffect(() => {
+    const checkUserPlan = async () => {
+      try {
+        const token = localStorage.getItem('access');
+        if (!token) {
+          navigate('/login');
+          return;
         }
+
+        const response = await fetch('http://localhost:8000/api/billing/', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.plan && data.plan.can_order_custom_template) {
+            setCanOrder(true);
+          } else {
+            setCanOrder(false);
+            setError('Your current plan does not support custom template orders. Please upgrade to access this feature.');
+          }
+        }
+      } catch (err) {
+        setError('Failed to verify your subscription. Please try again.');
       }
-    } catch (err) {
-      setError('Failed to verify your subscription. Please try again.');
-    }
-  };
+    };
+
+    checkUserPlan();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,15 +74,14 @@ const OrderTemplate = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
         setSuccess(true);
         // In a real app, you would show invoice details here
         setTimeout(() => {
           navigate('/billing');
         }, 3000);
       } else {
-        const data = await response.json();
-        setError(data.error || 'Failed to submit order');
+        const errorData = await response.json();
+        setError(errorData.error || 'Failed to submit order');
       }
     } catch (err) {
       setError('Network error. Please try again.');

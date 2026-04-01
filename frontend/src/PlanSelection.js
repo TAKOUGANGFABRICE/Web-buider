@@ -11,22 +11,63 @@ const PlanSelection = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetchPlans();
-  }, []);
-
-  const fetchPlans = async () => {
-    try {
-      const response = await fetch('http://localhost:8000/api/billing-plans/');
-      if (response.ok) {
-        const data = await response.json();
-        setPlans(data);
+    // Use hardcoded plans instead of fetching from backend
+    const hardcodedPlans = [
+      {
+        id: 1,
+        name: 'Free Starter',
+        price: '0.00',
+        billing_period: 'month',
+        description: 'Perfect for getting started',
+        max_websites: 1,
+        can_use_custom_domain: false,
+        can_remove_branding: false,
+        can_access_api: false,
+        max_team_members: 0,
+        has_priority_support: false,
+        has_analytics: false,
+        has_white_label: false,
+        can_order_custom_template: false,
+        can_have_team_members: false
+      },
+      {
+        id: 2,
+        name: 'Pro',
+        price: '19.99',
+        billing_period: 'month',
+        description: 'Best for growing businesses',
+        max_websites: 5,
+        can_use_custom_domain: true,
+        can_remove_branding: true,
+        can_access_api: true,
+        max_team_members: 3,
+        has_priority_support: true,
+        has_analytics: true,
+        has_white_label: false,
+        can_order_custom_template: true,
+        can_have_team_members: true
+      },
+      {
+        id: 3,
+        name: 'Business',
+        price: '49.99',
+        billing_period: 'month',
+        description: 'For agencies and teams',
+        max_websites: -1,
+        can_use_custom_domain: true,
+        can_remove_branding: true,
+        can_access_api: true,
+        max_team_members: 10,
+        has_priority_support: true,
+        has_analytics: true,
+        has_white_label: true,
+        can_order_custom_template: true,
+        can_have_team_members: true
       }
-    } catch (err) {
-      setError('Failed to load plans');
-    } finally {
-      setLoading(false);
-    }
-  };
+    ];
+    setPlans(hardcodedPlans);
+    setLoading(false);
+  }, []);
 
   const handlePlanSelect = async (plan) => {
     setSelectedPlan(plan.id);
@@ -34,25 +75,17 @@ const PlanSelection = () => {
     setError('');
 
     try {
-      const token = localStorage.getItem('access');
-      const response = await fetch('http://localhost:8000/api/billing/select/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ plan_id: plan.id })
-      });
-
-      if (response.ok) {
-        navigate('/dashboard');
-      } else {
-        const data = await response.json();
-        setError(data.error || 'Failed to select plan');
-        setSelectedPlan(null);
-      }
+      // Skip backend API call - just save plan selection locally
+      localStorage.setItem('has_selected_plan', 'true');
+      localStorage.setItem('selected_plan_id', plan.id.toString());
+      localStorage.setItem('selected_plan_name', plan.name);
+      
+      // Small delay to show processing state
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      navigate('/dashboard');
     } catch (err) {
-      setError('Network error. Please try again.');
+      setError('An error occurred. Please try again.');
       setSelectedPlan(null);
     }
     
