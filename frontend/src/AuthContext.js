@@ -58,30 +58,29 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     setError(null);
     try {
-      // Simulate login without backend
-      // For demo purposes, accept any non-empty username/password
-      if (username && password && password.length >= 8) {
-        const fakeToken = 'fake_token_' + Date.now();
-        localStorage.setItem('access', fakeToken);
-        localStorage.setItem('refresh', fakeToken);
+      const response = await fetch(`${API_URL}/token/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('access', data.access);
+        localStorage.setItem('refresh', data.refresh);
         localStorage.setItem('username', username);
-        
-        // Set user state
-        setUser({
-          username: username,
-          email: username.includes('@') ? username : `${username}@example.com`,
-          first_name: username.split(' ')[0] || username,
-          last_name: ''
-        });
-        
+
+        // Fetch user profile after successful login
+        await fetchUserProfile();
         return { success: true };
       } else {
-        const errorMessage = 'Invalid username or password';
+        const errorMessage = data.detail || 'Invalid username or password';
         setError(errorMessage);
         return { success: false, error: errorMessage };
       }
     } catch (err) {
-      const errorMessage = 'An error occurred. Please try again.';
+      const errorMessage = 'Network error. Please check your connection.';
       setError(errorMessage);
       return { success: false, error: errorMessage };
     }

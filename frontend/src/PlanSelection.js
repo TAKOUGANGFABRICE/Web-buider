@@ -119,7 +119,7 @@ const PlanSelection = () => {
 
   return (
     <div className="plan-selection-page">
-      <div className="plan-header">
+      <div className="plan-header animate-fade-in-up">
         <div className="auth-logo">
           <span className="auth-logo-icon">💎</span>
           <span className="auth-logo-text">WaaS</span>
@@ -128,13 +128,13 @@ const PlanSelection = () => {
         <p>Select a billing plan to get started with your website builder</p>
       </div>
 
-      {error && <div className="plan-error">{error}</div>}
+      {error && <div className="plan-error animate-fade-in">{error}</div>}
 
       <div className="plans-grid">
-        {plans.map((plan) => (
-          <div 
-            key={plan.id} 
-            className={`plan-card ${selectedPlan === plan.id ? 'selected' : ''}`}
+        {plans.map((plan, index) => (
+          <div
+            key={plan.id}
+            className={`plan-card animate-fade-in-up animate-delay-${index + 1} ${selectedPlan === plan.id ? 'selected' : ''}`}
             onClick={() => !processing && setSelectedPlan(plan.id)}
           >
             <div className="plan-card-header">

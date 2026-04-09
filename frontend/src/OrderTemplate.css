@@ -1,18 +1,19 @@
 .order-template-page {
   padding: 2rem;
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
 .order-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .order-header h1 {
-  font-size: 2rem;
-  color: #333;
+  font-size: 2.5rem;
+  color: #1a1a2e;
   margin-bottom: 0.5rem;
+  font-weight: 700;
 }
 
 .order-header p {
@@ -21,100 +22,111 @@
 }
 
 .order-error {
-  background: #ff4757;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
   color: white;
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: 12px;
   margin-bottom: 1.5rem;
   text-align: center;
+  font-weight: 500;
 }
 
 .order-form {
   background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
 .order-types {
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .order-types label {
   display: block;
   font-weight: 600;
-  color: #333;
+  color: #1a1a2e;
   margin-bottom: 1rem;
+  font-size: 1.1rem;
 }
 
 .order-types-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.25rem;
 }
 
 .order-type-card {
-  padding: 1.5rem;
-  border: 2px solid #eee;
-  border-radius: 10px;
+  padding: 1.75rem;
+  border: 2px solid #e8e8e8;
+  border-radius: 14px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-align: center;
+  background: #fafafa;
 }
 
 .order-type-card:hover {
   border-color: #667eea;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
 }
 
 .order-type-card.selected {
   border-color: #667eea;
-  background: linear-gradient(to bottom, #f8f9ff, white);
+  background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
 }
 
 .order-type-card .type-icon {
-  font-size: 2.5rem;
+  font-size: 3rem;
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .order-type-card h4 {
-  font-size: 1rem;
-  color: #333;
+  font-size: 1.1rem;
+  color: #1a1a2e;
   margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
 .order-type-card p {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #666;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.75rem;
 }
 
 .form-group label {
   display: block;
   font-weight: 600;
-  color: #333;
+  color: #1a1a2e;
   margin-bottom: 0.5rem;
+  font-size: 0.95rem;
 }
 
 .form-group input,
 .form-group textarea {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e8e8e8;
+  border-radius: 10px;
   font-size: 1rem;
   font-family: inherit;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
+  background: #fafafa;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: #667eea;
+  background: white;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
 }
 
 .form-group textarea {
@@ -122,45 +134,55 @@
 }
 
 .form-info {
-  background: #f8f9ff;
-  padding: 1.5rem;
-  border-radius: 8px;
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+  padding: 1.75rem;
+  border-radius: 12px;
   margin-bottom: 2rem;
+  border: 1px solid #e8eeff;
 }
 
 .form-info h4 {
-  font-size: 1rem;
-  color: #333;
+  font-size: 1.1rem;
+  color: #1a1a2e;
   margin-bottom: 1rem;
+  font-weight: 600;
 }
 
 .form-info ol {
   margin: 0;
   padding-left: 1.5rem;
-  color: #666;
-  line-height: 1.8;
+  color: #555;
+  line-height: 2;
+}
+
+.form-info ol li {
+  font-size: 0.95rem;
 }
 
 .btn-submit-order {
   width: 100%;
-  padding: 1rem;
-  background: #667eea;
+  padding: 1.1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 12px;
+  font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .btn-submit-order:hover {
-  background: #5a6fd6;
+  background: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
 }
 
 .btn-submit-order:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+  transform: none;
 }
 
 .order-success,
@@ -168,48 +190,58 @@
   text-align: center;
   padding: 3rem;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
 }
 
 .success-icon {
-  font-size: 4rem;
-  color: #2ed573;
+  font-size: 5rem;
   margin-bottom: 1rem;
+  animation: successPop 0.5s ease;
+}
+
+@keyframes successPop {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
 .restricted-icon {
-  font-size: 4rem;
+  font-size: 5rem;
   margin-bottom: 1rem;
 }
 
 .order-success h2,
 .order-restricted h2 {
-  font-size: 1.5rem;
-  color: #333;
+  font-size: 1.75rem;
+  color: #1a1a2e;
   margin-bottom: 1rem;
+  font-weight: 600;
 }
 
 .order-success p,
 .order-restricted p {
   color: #666;
   margin-bottom: 1rem;
+  line-height: 1.6;
 }
 
 .btn-upgrade-plan {
   padding: 1rem 2rem;
-  background: #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .btn-upgrade-plan:hover {
-  background: #5a6fd6;
+  background: linear-gradient(135deg, #5a6fd6 0%, #6a4190 100%);
+  transform: translateY(-2px);
 }
 
 @media (max-width: 768px) {

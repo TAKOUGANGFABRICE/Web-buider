@@ -1,0 +1,467 @@
+.builder-app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--background);
+}
+
+.builder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.builder-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.builder-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.website-name-input {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 600;
+  background: var(--background);
+  min-width: 200px;
+}
+
+.website-name-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.builder-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.builder-sidebar {
+  width: 320px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-tab {
+  flex: 1;
+  padding: 16px;
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sidebar-tab:hover {
+  background: var(--background);
+  color: var(--text-primary);
+}
+
+.sidebar-tab.active {
+  color: var(--primary);
+  border-bottom: 2px solid var(--primary);
+  background: var(--background);
+}
+
+.elements-panel {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.elements-panel h3 {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.elements-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.element-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 12px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: grab;
+  transition: all 0.2s;
+}
+
+.element-item:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+  transform: translateY(-2px);
+}
+
+.element-item:active {
+  cursor: grabbing;
+}
+
+.element-icon {
+  font-size: 1.75rem;
+  margin-bottom: 8px;
+}
+
+.element-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.properties-panel {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.properties-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.properties-header h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: capitalize;
+}
+
+.element-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.element-actions button {
+  padding: 6px 10px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.element-actions button:hover {
+  background: var(--border);
+}
+
+.properties-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.properties-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.properties-form label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.properties-form input,
+.properties-form select,
+.properties-form textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  background: var(--background);
+}
+
+.properties-form input:focus,
+.properties-form select:focus,
+.properties-form textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.no-selection {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-secondary);
+}
+
+.no-selection p {
+  font-size: 0.9rem;
+}
+
+.builder-canvas {
+  flex: 1;
+  background: #f1f5f9;
+  padding: 40px;
+  overflow-y: auto;
+}
+
+.canvas-content {
+  max-width: 900px;
+  margin: 0 auto;
+  background: white;
+  min-height: 600px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.empty-canvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px;
+  text-align: center;
+}
+
+.empty-canvas-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.empty-canvas h3 {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.empty-canvas p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.canvas-element {
+  position: relative;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.canvas-element:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.canvas-element.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.element-placeholder {
+  padding: 40px;
+  text-align: center;
+  background: var(--background);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+.builder-btn {
+  display: inline-block;
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.builder-btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+}
+
+.builder-btn-secondary {
+  background: var(--background);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.builder-btn-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+
+.builder-hero {
+  padding: 60px 40px;
+  text-align: center;
+}
+
+.builder-hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+}
+
+.builder-hero p {
+  font-size: 1.1rem;
+}
+
+.builder-nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+}
+
+.builder-nav a {
+  color: var(--text-primary);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.builder-nav a:hover {
+  color: var(--primary);
+}
+
+.builder-footer {
+  padding: 24px;
+  background: var(--text-primary);
+  color: white;
+  text-align: center;
+}
+
+.builder-gallery {
+  padding: 40px;
+  text-align: center;
+  background: var(--background);
+  color: var(--text-secondary);
+}
+
+.builder-video {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+}
+
+.builder-video iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.builder-form {
+  padding: 24px;
+}
+
+.builder-form .form-field {
+  margin-bottom: 16px;
+}
+
+.builder-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.builder-form input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.builder-social {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+}
+
+.social-icon {
+  font-size: 1.5rem;
+}
+
+.builder-container-element {
+  padding: 40px;
+  text-align: center;
+  background: var(--background);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+}
+
+@media (max-width: 1024px) {
+  .builder-sidebar {
+    width: 280px;
+  }
+  
+  .elements-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .builder-main {
+    flex-direction: column;
+  }
+  
+  .builder-sidebar {
+    width: 100%;
+    height: 300px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .builder-header {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+  
+  .builder-header-left,
+  .builder-header-right {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .website-name-input {
+    min-width: 150px;
+  }
+}

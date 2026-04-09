@@ -1,21 +1,49 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthContext';
+
+const API_URL = 'http://localhost:8000/api';
 
 function ActivateSubscription() {
+  const navigate = useNavigate();
+  const { authenticatedFetch } = useAuth();
+  
   const [code, setCode] = useState('');
   const [message, setMessage] = useState('');
+  const [isActivating, setIsActivating] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Replace with backend API call to activate subscription
     if (code.trim() === '') {
       setMessage('Please enter a valid activation code.');
       return;
     }
-    // Simulate activation
-    setTimeout(() => {
-      setMessage('Subscription activated successfully!');
-      setCode('');
-    }, 500);
+    
+    setIsActivating(true);
+    setMessage('');
+
+    try {
+      const response = await authenticatedFetch(`${API_URL}/billing/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activation_code: code }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setMessage('Subscription activated successfully!');
+        setCode('');
+        setTimeout(() => navigate('/dashboard'), 1500);
+      } else {
+        const errorData = await response.json();
+        setMessage(errorData.detail || 'Invalid activation code. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error activating subscription:', err);
+      setMessage('An error occurred. Please try again.');
+    } finally {
+      setIsActivating(false);
+    }
   };
 
   return (
@@ -33,9 +61,9 @@ function ActivateSubscription() {
             required
           />
         </div>
-        <button type="submit">Activate</button>
+        <button type="submit" disabled={isActivating}>{isActivating ? 'Activating...' : 'Activate'}</button>
       </form>
-      {message && <div style={{ color: 'green', marginTop: 10 }}>{message}</div>}
+      {message && <div style={{ color: message.includes('successfully') ? 'green' : 'red', marginTop: 10 }}>{message}</div>}
     </div>
   );
 }

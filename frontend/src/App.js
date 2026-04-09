@@ -6,7 +6,11 @@ import Billing from "./Billing";
 import PlanSelection from "./PlanSelection";
 import TemplateGallery from "./TemplateGallery";
 import OrderTemplate from "./OrderTemplate";
+import CreateWebsitePage from "./CreateWebsite";
+import VerifyEmail from "./VerifyEmail";
+import OAuthCallback from "./OAuthCallback";
 import { AuthProvider, useAuth } from "./AuthContext";
+import WebsiteBuilder from "./WebsiteBuilder";
 
 // Sidebar Layout Component
 const SidebarLayout = ({ children }) => {
@@ -117,13 +121,11 @@ export const Login = () => {
     e.preventDefault();
     setError("");
     setLoading(true);
-    
+
     try {
       const result = await login(email, password);
-      
+
       if (result.success) {
-        // Store username for fallback display
-        localStorage.setItem("username", email.split("@")[0]);
         await checkAndRedirect();
       } else {
         setError(result.error || "Invalid email or password");
@@ -186,7 +188,7 @@ export const Login = () => {
 
 export const Signup = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, register } = useAuth();
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -202,46 +204,38 @@ export const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    
+
     // Validate form
     if (!name.trim()) {
-      setError("Username is required");
+      alert("Username is required");
       return;
     }
     if (!email.trim()) {
-      setError("Email is required");
+      alert("Email is required");
       return;
     }
     if (password.length < 4) {
-      setError("Password must be at least 4 characters");
+      alert("Password must be at least 4 characters");
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
-      // Simulate registration without backend
-      // Store user data in localStorage
-      const fakeToken = 'fake_token_' + Date.now();
-      localStorage.setItem('access', fakeToken);
-      localStorage.setItem('refresh', fakeToken);
-      localStorage.setItem('username', name);
-      localStorage.setItem('user_email', email);
-      localStorage.setItem('has_selected_plan', 'false'); // Reset plan selection flag
-      
-      // Store a simple user object
-      localStorage.setItem('user', JSON.stringify({
+      const result = await register({
         username: name,
         email: email,
-        first_name: name.split(' ')[0] || name,
-        last_name: name.split(' ').slice(1).join(' ') || ''
-      }));
-      
-      // Navigate to plan selection
-      navigate('/select-plan');
+        password: password,
+        password2: password
+      });
+
+      if (result.success) {
+        navigate('/select-plan');
+      } else {
+        alert(result.error || "Registration failed");
+      }
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
+      alert("An unexpected error occurred. Please try again.");
     }
     setLoading(false);
   };
@@ -306,19 +300,32 @@ export const Signup = () => {
 
 // Dashboard Page
 export const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, authenticatedFetch } = useAuth();
+  const [websites, setWebsites] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
   const username = user?.username || user?.first_name || localStorage.getItem("username") || "User";
   const currentPlan = localStorage.getItem('selected_plan_name') || "Free";
   
   React.useEffect(() => {
     document.title = "Dashboard";
+    fetchWebsites();
   }, []);
 
-  const recentWebsites = [
-    { name: "My Portfolio", status: "draft", updated: "2 days ago" },
-    { name: "Business Site", status: "published", updated: "1 week ago" },
-    { name: "Landing Page", status: "draft", updated: "2 weeks ago" },
-  ];
+  const fetchWebsites = async () => {
+    try {
+      const response = await authenticatedFetch('http://localhost:8000/api/crud/websites/crud/');
+      if (response.ok) {
+        const data = await response.json();
+        setWebsites(data);
+      }
+    } catch (err) {
+      console.error('Error fetching websites:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const publishedCount = websites.filter(w => w.is_published).length;
 
   return (
     <SidebarLayout>
@@ -331,14 +338,14 @@ export const Dashboard = () => {
             <span className="stat-label">Total Websites</span>
             <span className="stat-icon">🌐</span>
           </div>
-          <div className="stat-value">3</div>
+          <div className="stat-value">{websites.length}</div>
         </div>
         <div className="stat-card">
           <div className="stat-card-header">
             <span className="stat-label">Published</span>
             <span className="stat-icon">✅</span>
           </div>
-          <div className="stat-value">1</div>
+          <div className="stat-value">{publishedCount}</div>
         </div>
         <div className="stat-card">
           <div className="stat-card-header">
@@ -353,21 +360,30 @@ export const Dashboard = () => {
           <h3>Recent Websites</h3>
           <Link to="/create" className="btn-primary btn-icon">➕ Create New</Link>
         </div>
-        <div className="website-list">
-          {recentWebsites.map((site, index) => (
-            <div key={index} className="website-list-item">
-              <div className="website-thumbnail">🌐</div>
-              <div className="website-info">
-                <h4>{site.name}</h4>
-                <p>{site.status === "published" ? "🟢 Published" : "⚪ Draft"} • Updated {site.updated}</p>
+        {loading ? (
+          <div className="spinner"></div>
+        ) : websites.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>
+            <p>No websites yet. Create your first website!</p>
+            <Link to="/create" className="btn-primary" style={{ marginTop: '16px' }}>Create Website</Link>
+          </div>
+        ) : (
+          <div className="website-list">
+            {websites.slice(0, 5).map((site) => (
+              <div key={site.id} className="website-list-item">
+                <div className="website-thumbnail">🌐</div>
+                <div className="website-info">
+                  <h4>{site.name}</h4>
+                  <p>{site.is_published ? "🟢 Published" : "⚪ Draft"} • Updated {new Date(site.updated_at).toLocaleDateString()}</p>
+                </div>
+                <div className="website-actions">
+                  <button className="btn-secondary">Edit</button>
+                  <button className="btn-secondary">Preview</button>
+                </div>
               </div>
-              <div className="website-actions">
-                <button className="btn-secondary">Edit</button>
-                <button className="btn-secondary">Preview</button>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </SidebarLayout>
   );
@@ -375,47 +391,88 @@ export const Dashboard = () => {
 
 // My Websites Page
 export const Websites = () => {
+  const { authenticatedFetch } = useAuth();
+  const [websites, setWebsites] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+
   React.useEffect(() => {
     document.title = "My Websites";
+    fetchWebsites();
   }, []);
 
-  const websites = [
-    { name: "My Portfolio", status: "draft", thumbnail: "🎨" },
-    { name: "Business Site", status: "published", thumbnail: "💼" },
-    { name: "Landing Page", status: "draft", thumbnail: "🚀" },
-    { name: "Blog", status: "published", thumbnail: "📝" },
-  ];
+  const fetchWebsites = async () => {
+    try {
+      const response = await authenticatedFetch('http://localhost:8000/api/crud/websites/crud/');
+      if (response.ok) {
+        const data = await response.json();
+        setWebsites(data);
+      }
+    } catch (err) {
+      console.error('Error fetching websites:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SidebarLayout>
+      {/* Create button at top right corner */}
+      <Link 
+        to="/create" 
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          padding: '10px 20px',
+          backgroundColor: '#007bff',
+          color: 'white',
+          textDecoration: 'none',
+          borderRadius: '5px',
+          fontSize: '14px',
+          fontWeight: 'bold',
+          zIndex: 100
+        }}
+      >
+        ➕ Create New Website
+      </Link>
+
       <div className="page-header">
         <h2>My Websites</h2>
-        <Link to="/create" className="btn-primary btn-icon">➕ Create New Website</Link>
       </div>
-      <div className="websites-grid">
-        {websites.map((site, index) => (
-          <div key={index} className="website-card">
-            <div className="website-card-image">{site.thumbnail}</div>
-            <div className="website-card-content">
-              <h3>{site.name}</h3>
-              <p>
-                <span className={`website-status ${site.status}`}>
-                  {site.status === "published" ? "🟢 Published" : "⚪ Draft"}
-                </span>
-              </p>
-              <div className="website-card-actions">
-                <button className="btn-secondary">Edit</button>
-                <button className="btn-secondary">Preview</button>
-                {site.status === "draft" ? (
-                  <button className="btn-primary">Publish</button>
-                ) : (
-                  <button className="btn-secondary">Unpublish</button>
-                )}
+      {loading ? (
+        <div className="spinner"></div>
+      ) : websites.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-secondary)' }}>
+          <p style={{ fontSize: '1.2rem' }}>No websites yet</p>
+          <p>Create your first website to get started!</p>
+          <Link to="/create" className="btn-primary" style={{ marginTop: '20px' }}>Create Website</Link>
+        </div>
+      ) : (
+        <div className="websites-grid">
+          {websites.map((site) => (
+            <div key={site.id} className="website-card">
+              <div className="website-card-image">🌐</div>
+              <div className="website-card-content">
+                <h3>{site.name}</h3>
+                <p>
+                  <span className={`website-status ${site.is_published ? 'published' : 'draft'}`}>
+                    {site.is_published ? "🟢 Published" : "⚪ Draft"}
+                  </span>
+                </p>
+                <div className="website-card-actions">
+                  <button className="btn-secondary">Edit</button>
+                  <button className="btn-secondary">Preview</button>
+                  {site.is_published ? (
+                    <button className="btn-secondary">Unpublish</button>
+                  ) : (
+                    <button className="btn-primary">Publish</button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </SidebarLayout>
   );
 };
@@ -485,93 +542,7 @@ export const CreateWebsite = () => {
   );
 };
 
-// Builder Page
-export const Builder = () => {
-  React.useEffect(() => {
-    document.title = "Website Builder";
-  }, []);
-
-  const navigate = useNavigate();
-
-  const elements = [
-    { icon: "📝", name: "Text" },
-    { icon: "🖼️", name: "Image" },
-    { icon: "🔘", name: "Button" },
-    { icon: "📦", name: "Container" },
-    { icon: "📋", name: "Heading" },
-    { icon: "📄", name: "Paragraph" },
-  ];
-
-  return (
-    <div className="app-container">
-      <aside className="sidebar">
-        <div className="sidebar-header">
-          <div className="sidebar-logo">
-            <span className="sidebar-logo-icon">💎</span>
-            <span>WaaS</span>
-          </div>
-        </div>
-        <nav className="sidebar-nav">
-          <div className="sidebar-nav-item active">
-            <span className="sidebar-nav-icon">📝</span>
-            <span>Elements</span>
-          </div>
-          <div className="sidebar-nav-item">
-            <span className="sidebar-nav-icon">🎨</span>
-            <span>Styles</span>
-          </div>
-          <div className="sidebar-nav-item">
-            <span className="sidebar-nav-icon">⚙️</span>
-            <span>Settings</span>
-          </div>
-        </nav>
-      </aside>
-      <main className="main-content" style={{ marginLeft: "var(--sidebar-width)" }}>
-        <header className="top-header">
-          <div className="builder-toolbar-title">
-            <span style={{ marginRight: "8px" }}>📝</span>
-            My Portfolio <span style={{ color: "var(--text-muted)", fontWeight: "normal" }}>• Draft</span>
-          </div>
-          <div className="builder-toolbar-actions">
-            <button className="btn-secondary" onClick={() => navigate("/dashboard")}>Back</button>
-            <button className="btn-secondary">💾 Save</button>
-            <button className="btn-secondary" onClick={() => navigate("/preview")}>👁️ Preview</button>
-            <button className="btn-primary" onClick={() => navigate("/preview")}>Publish</button>
-          </div>
-        </header>
-        <div className="builder-container">
-          <div className="builder-sidebar">
-            <div className="builder-sidebar-header">
-              <h3>Add Elements</h3>
-            </div>
-            <div className="builder-elements">
-              {elements.map((el, index) => (
-                <div key={index} className="builder-element">
-                  <span className="builder-element-icon">{el.icon}</span>
-                  <span className="builder-element-text">{el.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="builder-canvas">
-            <div className="builder-canvas-content">
-              <div className="preview-hero">
-                <h1>Welcome to My Website</h1>
-                <p>This is a demo of your website. Click to edit the text and make it your own.</p>
-                <button className="preview-btn">Click Me</button>
-              </div>
-              <div style={{ padding: "40px" }}>
-                <p style={{ textAlign: "center", color: "var(--text-secondary)" }}>
-                  Click on any element to edit it. Drag elements from the sidebar to add new content.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-    </div>
-  );
-};
+// Remove the old inline Builder component since we now have a separate file
 
 // Preview Page
 export const Preview = () => {
@@ -799,13 +770,16 @@ export default function App() {
           <Route path="/select-plan" element={<PlanSelection />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/websites" element={<ProtectedRoute><Websites /></ProtectedRoute>} />
-          <Route path="/create" element={<ProtectedRoute><CreateWebsite /></ProtectedRoute>} />
-          <Route path="/builder" element={<ProtectedRoute><Builder /></ProtectedRoute>} />
+          <Route path="/create" element={<ProtectedRoute><SidebarLayout><CreateWebsitePage /></SidebarLayout></ProtectedRoute>} />
+          <Route path="/builder" element={<ProtectedRoute><WebsiteBuilder /></ProtectedRoute>} />
           <Route path="/preview" element={<ProtectedRoute><Preview /></ProtectedRoute>} />
-          <Route path="/gallery" element={<ProtectedRoute><TemplateGallery /></ProtectedRoute>} />
-          <Route path="/order-template" element={<ProtectedRoute><OrderTemplate /></ProtectedRoute>} />
+          <Route path="/gallery" element={<ProtectedRoute><SidebarLayout><TemplateGallery /></SidebarLayout></ProtectedRoute>} />
+          <Route path="/order-template" element={<ProtectedRoute><SidebarLayout><OrderTemplate /></SidebarLayout></ProtectedRoute>} />
           <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/oauth/google/callback" element={<OAuthCallback />} />
+          <Route path="/oauth/facebook/callback" element={<OAuthCallback />} />
         </Routes>
       </Router>
     </AuthProvider>

@@ -1,9 +1,17 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthContext';
+
+const API_URL = 'http://localhost:8000/api';
 
 function BuildWebsite() {
+  const navigate = useNavigate();
+  const { authenticatedFetch } = useAuth();
+  
   const [step, setStep] = useState(1);
   const [siteData, setSiteData] = useState({ title: '', theme: '', content: '' });
   const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setSiteData({ ...siteData, [e.target.name]: e.target.value });
@@ -19,10 +27,36 @@ function BuildWebsite() {
     setStep(step - 1);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Replace with backend API call
-    setMessage('Website build process started!');
+    setIsSubmitting(true);
+    setMessage('');
+
+    try {
+      const response = await authenticatedFetch(`${API_URL}/websites/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: siteData.title,
+          content: siteData.content,
+          settings: { theme: siteData.theme }
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setMessage(`Website "${data.name}" created successfully!`);
+        setTimeout(() => navigate('/websites'), 1500);
+      } else {
+        const errorData = await response.json();
+        setMessage(errorData.detail || 'Failed to create website. Please try again.');
+      }
+    } catch (err) {
+      console.error('Error creating website:', err);
+      setMessage('An error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -78,10 +112,10 @@ function BuildWebsite() {
             />
           </div>
           <button onClick={handleBack} style={{ marginRight: 10 }}>Back</button>
-          <button type="submit">Build Website</button>
+          <button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Building...' : 'Build Website'}</button>
         </form>
       )}
-      {message && <div style={{ color: 'green', marginTop: 10 }}>{message}</div>}
+      {message && <div style={{ color: message.includes('successfully') ? 'green' : 'red', marginTop: 10 }}>{message}</div>}
     </div>
   );
 }

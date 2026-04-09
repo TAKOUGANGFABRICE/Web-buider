@@ -153,6 +153,89 @@
   text-decoration: underline;
 }
 
+.forgot-password-link {
+  text-align: right;
+  margin-top: -0.75rem;
+}
+
+.forgot-password-link a {
+  color: #667eea;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.forgot-password-link a:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+.social-login-divider {
+  display: flex;
+  align-items: center;
+  margin: 1.5rem 0;
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.social-login-divider::before,
+.social-login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #eee;
+}
+
+.social-login-divider span {
+  padding: 0 1rem;
+}
+
+.social-login-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.social-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e1e1e1;
+  border-radius: 10px;
+  background: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.social-button:hover {
+  background: #f8f9fa;
+  border-color: #ccc;
+}
+
+.social-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.social-button.google {
+  color: #333;
+}
+
+.social-button.facebook {
+  color: #1877F2;
+  border-color: #1877F2;
+}
+
+.social-button.facebook:hover {
+  background: #f0f7ff;
+}
+
 .loading-spinner {
   display: inline-block;
   width: 20px;

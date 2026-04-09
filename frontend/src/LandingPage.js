@@ -28,7 +28,7 @@ function LandingPage() {
   return (
     <div className="landing-page">
       {/* Navigation */}
-      <nav className="landing-nav">
+      <nav className="landing-nav animate-fade-in">
         <div className="landing-nav-logo">
           <span className="logo-icon">💎</span>
           <span>WaaS</span>
@@ -43,7 +43,7 @@ function LandingPage() {
 
       {/* Hero Section */}
       <section className="hero-section">
-        <div className="hero-content">
+        <div className="hero-content animate-fade-in-up">
           <h1>Build Your Website Easily</h1>
           <p className="hero-subtitle">
             The all-in-one platform to create, preview, and publish professional websites — no coding required.
@@ -56,7 +56,10 @@ function LandingPage() {
       <section id="features" className="features-section">
         <div className="features-grid">
           {features.map((feature, index) => (
-            <div key={index} className="feature-card">
+            <div
+              key={index}
+              className={`feature-card animate-fade-in-up animate-delay-${index + 1}`}
+            >
               <div className="feature-icon">{feature.icon}</div>
               <h3>{feature.title}</h3>
               <p>{feature.description}</p>
@@ -67,12 +70,12 @@ function LandingPage() {
 
       {/* Pricing Section */}
       <section id="pricing" className="pricing-section">
-        <div className="pricing-header">
+        <div className="pricing-header animate-fade-in-up">
           <h2>Simple Pricing</h2>
           <p>Choose the plan that's right for you.</p>
         </div>
         <div className="pricing-grid">
-          <div className="pricing-card">
+          <div className="pricing-card animate-fade-in-up animate-delay-1">
             <h3>Free</h3>
             <div className="price">$0</div>
             <p className="price-period">Forever free</p>
@@ -83,7 +86,7 @@ function LandingPage() {
             </ul>
             <Link to="/signup" className="btn-outline">Get Started</Link>
           </div>
-          <div className="pricing-card featured">
+          <div className="pricing-card featured animate-fade-in-up animate-delay-2">
             <div className="popular-badge">Most Popular</div>
             <h3>Premium</h3>
             <div className="price">$10<span>/month</span></div>
