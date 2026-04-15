@@ -255,7 +255,9 @@ class PaymentCRUDView(BaseCRUDViewset):
     serializer_class = PaymentSerializer
 
     def get_queryset(self):
-        queryset = Payment.objects.select_related("user", "subscription").all()
+        queryset = Payment.objects.select_related("user", "subscription").filter(
+            user=self.request.user
+        )
 
         # Filter by status
         pstatus = self.request.query_params.get("status")
@@ -266,11 +268,6 @@ class PaymentCRUDView(BaseCRUDViewset):
         method = self.request.query_params.get("method")
         if method:
             queryset = queryset.filter(payment_method=method)
-
-        # Filter by user
-        user_id = self.request.query_params.get("user_id")
-        if user_id:
-            queryset = queryset.filter(user_id=user_id)
 
         # Filter by date range
         start_date = self.request.query_params.get("start_date")
@@ -308,17 +305,14 @@ class InvoiceCRUDView(BaseCRUDViewset):
     serializer_class = InvoiceSerializer
 
     def get_queryset(self):
-        queryset = Invoice.objects.select_related("user", "payment").all()
+        queryset = Invoice.objects.select_related("user", "payment").filter(
+            user=self.request.user
+        )
 
         # Filter by status
         istatus = self.request.query_params.get("status")
         if istatus:
             queryset = queryset.filter(status=istatus)
-
-        # Filter by user
-        user_id = self.request.query_params.get("user_id")
-        if user_id:
-            queryset = queryset.filter(user_id=user_id)
 
         return queryset.order_by("-created_at")
 
@@ -466,12 +460,7 @@ class UserTemplateCRUDView(BaseCRUDViewset):
     def get_queryset(self):
         queryset = UserTemplate.objects.select_related(
             "user", "template", "website"
-        ).all()
-
-        # Filter by user
-        user_id = self.request.query_params.get("user_id")
-        if user_id:
-            queryset = queryset.filter(user_id=user_id)
+        ).filter(user=self.request.user)
 
         # Filter by template
         template_id = self.request.query_params.get("template_id")
@@ -507,17 +496,12 @@ class TemplatePurchaseCRUDView(BaseCRUDViewset):
     def get_queryset(self):
         queryset = TemplatePurchase.objects.select_related(
             "user", "template", "user_template"
-        ).all()
+        ).filter(user=self.request.user)
 
         # Filter by status
         pstatus = self.request.query_params.get("status")
         if pstatus:
             queryset = queryset.filter(payment_status=pstatus)
-
-        # Filter by user
-        user_id = self.request.query_params.get("user_id")
-        if user_id:
-            queryset = queryset.filter(user_id=user_id)
 
         return queryset.order_by("-created_at")
 
@@ -543,7 +527,7 @@ class TemplateOrderCRUDView(BaseCRUDViewset):
     def get_queryset(self):
         queryset = TemplateOrder.objects.select_related(
             "user", "invoice", "delivered_template"
-        ).all()
+        ).filter(user=self.request.user)
 
         # Filter by status
         ostatus = self.request.query_params.get("status")
@@ -554,11 +538,6 @@ class TemplateOrderCRUDView(BaseCRUDViewset):
         order_type = self.request.query_params.get("order_type")
         if order_type:
             queryset = queryset.filter(order_type=order_type)
-
-        # Filter by user
-        user_id = self.request.query_params.get("user_id")
-        if user_id:
-            queryset = queryset.filter(user_id=user_id)
 
         return queryset.order_by("-created_at")
 
@@ -609,12 +588,9 @@ class WebsiteCRUDView(BaseCRUDViewset):
     serializer_class = WebsiteSerializer
 
     def get_queryset(self):
-        queryset = Website.objects.select_related("owner", "template_used").all()
-
-        # Filter by owner
-        owner_id = self.request.query_params.get("owner_id")
-        if owner_id:
-            queryset = queryset.filter(owner_id=owner_id)
+        queryset = Website.objects.select_related("owner", "template_used").filter(
+            owner=self.request.user
+        )
 
         # Filter by status
         wstatus = self.request.query_params.get("status")
@@ -638,17 +614,9 @@ class WebsiteCRUDView(BaseCRUDViewset):
         serializer.save(owner=self.request.user)
 
     @action(detail=False, methods=["get"])
-    def by_user(self, request):
-        """Get websites for a user"""
-        user_id = request.query_params.get("user_id")
-        websites = Website.objects.filter(owner_id=user_id)
-        return Response(WebsiteSerializer(websites, many=True).data)
-
-    @action(detail=False, methods=["get"])
     def count(self, request):
-        """Count websites for a user"""
-        user_id = request.query_params.get("user_id")
-        count = Website.objects.filter(owner_id=user_id).count()
+        """Count websites for current user"""
+        count = Website.objects.filter(owner=request.user).count()
         return Response({"count": count})
 
     @action(detail=True, methods=["post"])
@@ -681,14 +649,12 @@ class TeamMemberCRUDView(BaseCRUDViewset):
     serializer_class = TeamMemberSerializer
 
     def get_queryset(self):
+        user_websites = Website.objects.filter(owner=self.request.user).values_list(
+            "id", flat=True
+        )
         queryset = TeamMember.objects.select_related(
             "user", "website", "invited_by"
-        ).all()
-
-        # Filter by website
-        website_id = self.request.query_params.get("website_id")
-        if website_id:
-            queryset = queryset.filter(website_id=website_id, is_active=True)
+        ).filter(website_id__in=user_websites)
 
         # Filter by user
         user_id = self.request.query_params.get("user_id")
@@ -732,12 +698,12 @@ class DomainCRUDView(BaseCRUDViewset):
     serializer_class = DomainSerializer
 
     def get_queryset(self):
-        queryset = Domain.objects.select_related("website").all()
-
-        # Filter by website
-        website_id = self.request.query_params.get("website_id")
-        if website_id:
-            queryset = queryset.filter(website_id=website_id)
+        user_websites = Website.objects.filter(owner=self.request.user).values_list(
+            "id", flat=True
+        )
+        queryset = Domain.objects.select_related("website").filter(
+            website_id__in=user_websites
+        )
 
         # Filter by verified
         is_verified = self.request.query_params.get("is_verified")
@@ -787,12 +753,12 @@ class PageElementCRUDView(BaseCRUDViewset):
     serializer_class = PageElementSerializer
 
     def get_queryset(self):
-        queryset = PageElement.objects.select_related("website", "parent").all()
-
-        # Filter by website
-        website_id = self.request.query_params.get("website_id")
-        if website_id:
-            queryset = queryset.filter(website_id=website_id)
+        user_websites = Website.objects.filter(owner=self.request.user).values_list(
+            "id", flat=True
+        )
+        queryset = PageElement.objects.select_related("website", "parent").filter(
+            website_id__in=user_websites
+        )
 
         # Filter by page
         page_name = self.request.query_params.get("page_name")

@@ -4,6 +4,17 @@ from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 import uuid
+import os
+
+# Import models from advanced_auth so Django can see them for migrations
+from .advanced_auth import (
+    LoginHistory,
+    FailedLoginAttempt,
+    UserSession,
+    TwoFactorAuth,
+    MagicLoginToken,
+    LoginAttemptLockout,
+)
 
 
 # ============================================
@@ -57,7 +68,7 @@ class UserProfile(models.Model):
         import secrets
 
         self.password_reset_token = secrets.token_urlsafe(32)
-        self.password_reset_expires = timezone.now() + timezone.timedelta(hours=24)
+        self.password_reset_expires = timezone.now() + timedelta(hours=24)
         return self.password_reset_token
 
     def is_password_reset_valid(self):
@@ -79,6 +90,13 @@ class BillingPlan(models.Model):
         ("yearly", "Yearly"),
     ]
 
+    HOSTING_TYPE_CHOICES = [
+        ("shared", "Shared Hosting"),
+        ("vps", "VPS Hosting"),
+        ("dedicated", "Dedicated Server"),
+        ("cloud", "Cloud Hosting"),
+    ]
+
     name = models.CharField(
         max_length=50, help_text="Plan name (e.g., Basic, Pro, Enterprise)"
     )
@@ -93,6 +111,19 @@ class BillingPlan(models.Model):
         max_length=20, choices=BILLING_PERIOD_CHOICES, default="monthly"
     )
     description = models.TextField(blank=True, help_text="Plan description")
+
+    # Hosting & Storage
+    hosting_type = models.CharField(
+        max_length=20,
+        choices=HOSTING_TYPE_CHOICES,
+        default="shared",
+        help_text="Type of hosting for this plan",
+    )
+    disk_space_gb = models.IntegerField(
+        default=5,
+        validators=[MinValueValidator(1)],
+        help_text="Disk space in GB (-1 for unlimited)",
+    )
 
     # Website & Template Limits
     max_websites = models.IntegerField(
@@ -266,6 +297,14 @@ class Website(models.Model):
         blank=True,
         related_name="websites_created",
     )
+    is_scratch = models.BooleanField(
+        default=False,
+        help_text="Whether website was created from scratch (no template)",
+    )
+    initial_content = models.TextField(
+        blank=True,
+        help_text="Initial HTML content for scratch websites",
+    )
     settings = models.JSONField(default=dict, blank=True)
     seo_title = models.CharField(max_length=200, blank=True)
     seo_description = models.TextField(max_length=500, blank=True)
@@ -342,6 +381,43 @@ class TeamMember(models.Model):
 
     def can_edit(self):
         return self.role in ["owner", "admin", "editor"]
+
+
+# ============================================
+# MEDIA GALLERY MODULE
+# ============================================
+
+
+class MediaImage(models.Model):
+    """User uploaded images for gallery"""
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="uploaded_images"
+    )
+    name = models.CharField(max_length=255)
+    image = models.ImageField(upload_to="user_images/%Y/%m/")
+    image_url = models.URLField(blank=True, null=True)
+    file_size = models.IntegerField(default=0, help_text="Size in bytes")
+    width = models.IntegerField(default=0)
+    height = models.IntegerField(default=0)
+    mime_type = models.CharField(max_length=100, blank=True, null=True)
+    alt_text = models.CharField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["user", "-created_at"]),
+        ]
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if self.image and not self.file_size:
+            self.file_size = self.image.size
+        super().save(*args, **kwargs)
 
 
 # ============================================
@@ -773,3 +849,125 @@ class InvoiceItem(models.Model):
     def save(self, *args, **kwargs):
         self.amount = self.quantity * self.unit_amount
         super().save(*args, **kwargs)
+
+
+# ============================================
+# CUSTOM WEBSITE UPLOAD MODULE
+# ============================================
+
+
+class CustomWebsiteUpload(models.Model):
+    """Stores ZIP file uploads for custom websites"""
+
+    SOURCE_CHOICES = [
+        ("upload", "User Upload"),
+        ("template_convert", "Template Conversion"),
+    ]
+
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="custom_uploads"
+    )
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=100, blank=True)
+    zip_file = models.FileField(
+        upload_to="uploads/websites/%Y/%m/", help_text="Uploaded ZIP file"
+    )
+    extracted_path = models.CharField(
+        max_length=500, blank=True, help_text="Path to extracted files"
+    )
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default="upload")
+    status = models.CharField(
+        max_length=20, default="pending", help_text="pending, extracting, ready, failed"
+    )
+    error_message = models.TextField(blank=True)
+    file_size = models.IntegerField(default=0, help_text="Size in bytes")
+    is_published = models.BooleanField(default=False)
+    published_at = models.DateTimeField(null=True, blank=True)
+    custom_domain = models.CharField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["owner", "-created_at"]),
+            models.Index(fields=["slug"]),
+            models.Index(fields=["status"]),
+        ]
+
+    def __str__(self):
+        return f"{self.name} ({self.get_status_display()})"
+
+    def save(self, *args, **kwargs):
+        from django.utils.text import slugify
+
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    @property
+    def get_extracted_directory(self):
+        """Return the full path to extracted directory"""
+        if self.extracted_path:
+            from django.conf import settings
+
+            return os.path.join(settings.MEDIA_ROOT, self.extracted_path)
+        return None
+
+    def get_index_file_path(self):
+        """Find the main HTML file in extracted content"""
+        extracted_dir = self.get_extracted_directory
+        if not extracted_dir or not os.path.exists(extracted_dir):
+            return None
+
+        # Common index file names
+        index_names = ["index.html", "index.htm", "home.html", "home.htm"]
+
+        for root, dirs, files in os.walk(extracted_dir):
+            for filename in files:
+                if filename.lower() in index_names:
+                    return os.path.join(root, filename)
+
+        # If no index file found, return first HTML file
+        for root, dirs, files in os.walk(extracted_dir):
+            for filename in files:
+                if filename.endswith(".html") or filename.endswith(".htm"):
+                    return os.path.join(root, filename)
+
+        return None
+
+
+class WebsiteTemplateJSON(models.Model):
+    """JSON structure converted from HTML/ZIP for use in builder"""
+
+    TEMPLATE_TYPE_CHOICES = [
+        ("zip_converted", "ZIP Converted"),
+        ("builder_created", "Builder Created"),
+    ]
+
+    name = models.CharField(max_length=100)
+    slug = models.SlugField(unique=True)
+    description = models.TextField(blank=True)
+    json_structure = models.JSONField(help_text="JSON structure for page builder")
+    source_html = models.TextField(blank=True, help_text="Original HTML content")
+    thumbnail = models.URLField(blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    created_from_upload = models.ForeignKey(
+        CustomWebsiteUpload,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="converted_templates",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["slug"]),
+            models.Index(fields=["is_active"]),
+        ]
+
+    def __str__(self):
+        return self.name

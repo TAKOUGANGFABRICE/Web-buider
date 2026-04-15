@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from './AuthContext';
 import './PaymentModal.css';
 
-const PaymentModal = ({ isOpen, onClose, plan = 'premium' }) => {
+const API_URL = 'http://localhost:8000/api';
+
+const PaymentModal = ({ isOpen, onClose, plan }) => {
+  const { authenticatedFetch } = useAuth();
   const [activeTab, setActiveTab] = useState('card');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -11,6 +15,7 @@ const PaymentModal = ({ isOpen, onClose, plan = 'premium' }) => {
   const [cardNumber, setCardNumber] = useState('');
   const [expiry, setExpiry] = useState('');
   const [cvc, setCvc] = useState('');
+  const [cardName, setCardName] = useState('');
   
   // Mobile money state
   const [phoneNumber, setPhoneNumber] = useState('+237 ');
@@ -18,12 +23,9 @@ const PaymentModal = ({ isOpen, onClose, plan = 'premium' }) => {
   const [mobileInstructions, setMobileInstructions] = useState(null);
   const [verifyingMobile, setVerifyingMobile] = useState(false);
 
-  const planPrices = {
-    premium: { amount: 10, period: 'month' },
-    business: { amount: 29, period: 'month' }
-  };
-
-  const planDetails = planPrices[plan] || planPrices.premium;
+  // Get plan details
+  const planDetails = plan || { name: 'Premium', price: 10 };
+  const planPrice = parseFloat(planDetails.price) || 0;
 
   useEffect(() => {
     if (isOpen) {
@@ -33,6 +35,7 @@ const PaymentModal = ({ isOpen, onClose, plan = 'premium' }) => {
       setCardNumber('');
       setExpiry('');
       setCvc('');
+      setCardName('');
       setPhoneNumber('+237 ');
     }
   }, [isOpen]);
@@ -96,14 +99,17 @@ const PaymentModal = ({ isOpen, onClose, plan = 'premium' }) => {
     try {
       const token = localStorage.getItem('access');
       
-      // Create payment intent
+      // Create payment intent with plan details
       const response = await fetch('http://localhost:8000/api/payments/create-intent/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ plan })
+        body: JSON.stringify({ 
+          plan_id: planDetails.id,
+          amount: planPrice * 100 // Convert to cents
+        })
       });
 
       const data = await response.json();
@@ -121,7 +127,10 @@ const PaymentModal = ({ isOpen, onClose, plan = 'premium' }) => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ paymentId: data.paymentId, plan })
+          body: JSON.stringify({ 
+            paymentId: data.paymentIntentId || data.paymentId,
+            plan_id: planDetails.id
+          })
         });
 
         const confirmData = await confirmResponse.json();
@@ -159,9 +168,10 @@ const PaymentModal = ({ isOpen, onClose, plan = 'premium' }) => {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          plan,
-          phoneNumber,
-          network: selectedNetwork
+          plan_id: planDetails.id,
+          phone_number: phoneNumber,
+          network: selectedNetwork,
+          amount: planPrice
         })
       });
 
@@ -184,7 +194,10 @@ const PaymentModal = ({ isOpen, onClose, plan = 'premium' }) => {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ paymentId: data.paymentId, plan })
+            body: JSON.stringify({ 
+              payment_id: data.payment_id || data.paymentId,
+              plan_id: planDetails.id
+            })
           });
 
           const verifyData = await verifyResponse.json();
@@ -265,7 +278,7 @@ const PaymentModal = ({ isOpen, onClose, plan = 'premium' }) => {
             </div>
 
             <div className="plan-summary">
-              You're upgrading to the {plan.charAt(0).toUpperCase() + plan.slice(1)} Plan (${planDetails.amount} / {planDetails.period})
+              You're upgrading to the {(typeof plan === 'string' ? plan : plan?.name || 'Premium').charAt(0).toUpperCase() + (typeof plan === 'string' ? plan : plan?.name || 'Premium').slice(1)} Plan (${planDetails.amount} / {planDetails.period})
             </div>
 
             {error && <div className="payment-error">{error}</div>}

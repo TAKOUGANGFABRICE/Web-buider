@@ -10,7 +10,10 @@ import CreateWebsitePage from "./CreateWebsite";
 import VerifyEmail from "./VerifyEmail";
 import OAuthCallback from "./OAuthCallback";
 import { AuthProvider, useAuth } from "./AuthContext";
+import { ToastProvider, useToast } from "./ToastContext";
 import WebsiteBuilder from "./WebsiteBuilder";
+import Gallery from "./Gallery";
+import Toast from "./Toast";
 
 // Sidebar Layout Component
 const SidebarLayout = ({ children }) => {
@@ -46,13 +49,13 @@ const SidebarLayout = ({ children }) => {
             <span className="sidebar-nav-icon">🌐</span>
             <span>My Websites</span>
           </Link>
-          <Link to="/create" className={`sidebar-nav-item ${isActive("/create") ? "active" : ""}`}>
-            <span className="sidebar-nav-icon">➕</span>
-            <span>Create Website</span>
-          </Link>
           <Link to="/gallery" className={`sidebar-nav-item ${isActive("/gallery") ? "active" : ""}`}>
             <span className="sidebar-nav-icon">🖼️</span>
-            <span>Template Gallery</span>
+            <span>Templates</span>
+          </Link>
+          <Link to="/media" className={`sidebar-nav-item ${isActive("/media") ? "active" : ""}`}>
+            <span className="sidebar-nav-icon">📁</span>
+            <span>Media Gallery</span>
           </Link>
           <Link to="/order-template" className={`sidebar-nav-item ${isActive("/order-template") ? "active" : ""}`}>
             <span className="sidebar-nav-icon">🎨</span>
@@ -101,13 +104,9 @@ export const Login = () => {
   const [loading, setLoading] = React.useState(false);
 
   const checkAndRedirect = React.useCallback(() => {
-    // Skip backend check - just go to select-plan first time, dashboard after
-    const hasSelectedPlan = localStorage.getItem('has_selected_plan');
-    if (!hasSelectedPlan) {
-      navigate('/select-plan');
-    } else {
-      navigate('/dashboard');
-    }
+    // After login/register, go directly to dashboard
+    // Plan selection can be done later from Billing page
+    navigate('/dashboard');
   }, [navigate]);
 
   // Redirect if already logged in
@@ -189,6 +188,7 @@ export const Login = () => {
 export const Signup = () => {
   const navigate = useNavigate();
   const { user, register } = useAuth();
+  const { showToast } = useToast();
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -198,7 +198,7 @@ export const Signup = () => {
   // Redirect if already logged in
   React.useEffect(() => {
     if (user) {
-      navigate('/select-plan');
+      navigate('/dashboard');
     }
   }, [user, navigate]);
 
@@ -207,15 +207,15 @@ export const Signup = () => {
 
     // Validate form
     if (!name.trim()) {
-      alert("Username is required");
+      setError("Username is required");
       return;
     }
     if (!email.trim()) {
-      alert("Email is required");
+      setError("Email is required");
       return;
     }
     if (password.length < 4) {
-      alert("Password must be at least 4 characters");
+      setError("Password must be at least 4 characters");
       return;
     }
 
@@ -230,12 +230,12 @@ export const Signup = () => {
       });
 
       if (result.success) {
-        navigate('/select-plan');
+        navigate('/dashboard');
       } else {
-        alert(result.error || "Registration failed");
+        setError(result.error || "Registration failed");
       }
     } catch (err) {
-      alert("An unexpected error occurred. Please try again.");
+      setError("An unexpected error occurred. Please try again.");
     }
     setLoading(false);
   };
@@ -303,6 +303,13 @@ export const Dashboard = () => {
   const { user, authenticatedFetch } = useAuth();
   const [websites, setWebsites] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+  const [showQuickUpload, setShowQuickUpload] = React.useState(false);
+  const [quickWebsiteName, setQuickWebsiteName] = React.useState('');
+  const [quickZipFile, setQuickZipFile] = React.useState(null);
+  const [quickUploading, setQuickUploading] = React.useState(false);
+  const [quickUploadStatus, setQuickUploadStatus] = React.useState('');
+  const navigate = useNavigate();
+  
   const username = user?.username || user?.first_name || localStorage.getItem("username") || "User";
   const currentPlan = localStorage.getItem('selected_plan_name') || "Free";
   
@@ -325,6 +332,61 @@ export const Dashboard = () => {
     }
   };
 
+  const handleQuickZipUpload = async () => {
+    if (!quickWebsiteName.trim()) {
+      setQuickUploadStatus('Please enter a website name');
+      return;
+    }
+    if (!quickZipFile) {
+      setQuickUploadStatus('Please select a ZIP file');
+      return;
+    }
+    
+    setQuickUploading(true);
+    setQuickUploadStatus('Uploading...');
+    
+    try {
+      const formData = new FormData();
+      formData.append('name', quickWebsiteName);
+      formData.append('zip_file', quickZipFile);
+      
+      const response = await authenticatedFetch('http://localhost:8000/api/custom-uploads/', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      const result = await response.json();
+      
+      if (response.ok) {
+        setQuickUploadStatus('Extracting files...');
+        
+        // Poll for status
+        for (let i = 0; i < 20; i++) {
+          await new Promise(r => setTimeout(r, 2000));
+          const statusResponse = await authenticatedFetch(`http://localhost:8000/api/custom-uploads/${result.id}/`);
+          const statusData = await statusResponse.json();
+          
+          if (statusData.status === 'ready') {
+            setQuickUploadStatus('Ready!');
+            navigate(`/preview?id=${result.id}`);
+            return;
+          } else if (statusData.status === 'failed') {
+            setQuickUploadStatus(statusData.error_message || 'Extraction failed');
+            setQuickUploading(false);
+            return;
+          }
+        }
+        setQuickUploadStatus('Processing timed out');
+      } else {
+        setQuickUploadStatus(result.error || result.detail || 'Upload failed');
+      }
+    } catch (err) {
+      console.error('Error uploading:', err);
+      setQuickUploadStatus('Network error');
+    }
+    setQuickUploading(false);
+  };
+
   const publishedCount = websites.filter(w => w.is_published).length;
 
   return (
@@ -332,6 +394,106 @@ export const Dashboard = () => {
       <div style={{ marginBottom: "8px", color: "var(--text-secondary)" }}>
         Welcome, {username} 👋
       </div>
+      
+      {/* Quick ZIP Upload Panel */}
+      <div style={{ 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+        borderRadius: '16px', 
+        padding: '24px', 
+        marginBottom: '24px',
+        color: 'white'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+          <div>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '1.25rem' }}>📦 Quick Import from ZIP</h3>
+            <p style={{ margin: 0, opacity: 0.9 }}>Upload a cPanel ZIP backup and get started instantly</p>
+          </div>
+          <button 
+            onClick={() => setShowQuickUpload(!showQuickUpload)}
+            style={{
+              padding: '12px 24px',
+              background: 'white',
+              color: '#667eea',
+              border: 'none',
+              borderRadius: '8px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontSize: '1rem'
+            }}
+          >
+            {showQuickUpload ? '✕ Close' : '+ Upload ZIP'}
+          </button>
+        </div>
+        
+        {showQuickUpload && (
+          <div style={{ 
+            marginTop: '20px', 
+            padding: '20px', 
+            background: 'rgba(255,255,255,0.15)', 
+            borderRadius: '12px',
+            backdropFilter: 'blur(10px)'
+          }}>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <input
+                type="text"
+                placeholder="Website Name"
+                value={quickWebsiteName}
+                onChange={(e) => setQuickWebsiteName(e.target.value)}
+                style={{
+                  flex: '1',
+                  minWidth: '200px',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontSize: '1rem'
+                }}
+              />
+              <input
+                type="file"
+                accept=".zip"
+                onChange={(e) => setQuickZipFile(e.target.files[0])}
+                style={{ display: 'none' }}
+                id="quick-zip-input"
+              />
+              <label 
+                htmlFor="quick-zip-input"
+                style={{
+                  padding: '12px 20px',
+                  background: 'rgba(255,255,255,0.2)',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: 500,
+                  border: '2px dashed rgba(255,255,255,0.4)'
+                }}
+              >
+                {quickZipFile ? quickZipFile.name : '📁 Select ZIP File'}
+              </label>
+              <button 
+                onClick={handleQuickZipUpload}
+                disabled={quickUploading}
+                style={{
+                  padding: '12px 24px',
+                  background: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  cursor: quickUploading ? 'not-allowed' : 'pointer',
+                  opacity: quickUploading ? 0.7 : 1
+                }}
+              >
+                {quickUploading ? '⏳ Uploading...' : '🚀 Upload & Import'}
+              </button>
+            </div>
+            {quickUploadStatus && (
+              <div style={{ marginTop: '12px', color: quickUploadStatus.includes('error') || quickUploadStatus.includes('failed') || quickUploadStatus.includes('Please') ? '#ffcccc' : '#ccffcc' }}>
+                {quickUploadStatus}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+      
       <div className="stats-grid">
         <div className="stat-card">
           <div className="stat-card-header">
@@ -377,8 +539,8 @@ export const Dashboard = () => {
                   <p>{site.is_published ? "🟢 Published" : "⚪ Draft"} • Updated {new Date(site.updated_at).toLocaleDateString()}</p>
                 </div>
                 <div className="website-actions">
-                  <button className="btn-secondary">Edit</button>
-                  <button className="btn-secondary">Preview</button>
+                  <Link to={`/builder?id=${site.id}`} className="btn-secondary">Edit</Link>
+                  <Link to={`/preview?id=${site.id}`} className="btn-secondary">Preview</Link>
                 </div>
               </div>
             ))}
@@ -394,6 +556,7 @@ export const Websites = () => {
   const { authenticatedFetch } = useAuth();
   const [websites, setWebsites] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     document.title = "My Websites";
@@ -402,11 +565,31 @@ export const Websites = () => {
 
   const fetchWebsites = async () => {
     try {
+      // Fetch regular websites
       const response = await authenticatedFetch('http://localhost:8000/api/crud/websites/crud/');
+      let data = [];
       if (response.ok) {
-        const data = await response.json();
-        setWebsites(data);
+        data = await response.json();
       }
+      
+      // Also fetch custom uploads (ZIP uploads)
+      try {
+        const uploadResponse = await authenticatedFetch('http://localhost:8000/api/custom-uploads/');
+        if (uploadResponse.ok) {
+          const uploads = await uploadResponse.json();
+          // Add uploads to websites list with type indicator
+          const uploadWebsites = uploads.map(upload => ({
+            ...upload,
+            is_custom_upload: true,
+            template_used_id: 'zip_upload'
+          }));
+          data = [...data, ...uploadWebsites];
+        }
+      } catch (e) {
+        console.log('No custom uploads found');
+      }
+      
+      setWebsites(data);
     } catch (err) {
       console.error('Error fetching websites:', err);
     } finally {
@@ -414,60 +597,185 @@ export const Websites = () => {
     }
   };
 
+  const handleDelete = async (websiteId, isCustomUpload = false) => {
+    if (!window.confirm('Are you sure you want to delete this website? This action cannot be undone.')) {
+      return;
+    }
+    
+    try {
+      let response;
+      if (isCustomUpload) {
+        response = await authenticatedFetch(`http://localhost:8000/api/custom-uploads/${websiteId}/`, {
+          method: 'DELETE',
+        });
+      } else {
+        response = await authenticatedFetch(`http://localhost:8000/api/crud/websites/crud/${websiteId}/`, {
+          method: 'DELETE',
+        });
+      }
+      
+      if (response.ok) {
+        setWebsites(websites.filter(w => w.id !== websiteId));
+      } else {
+        alert('Failed to delete website');
+      }
+    } catch (err) {
+      console.error('Error deleting website:', err);
+      alert('Failed to delete website');
+    }
+  };
+
+  const handlePublish = async (website) => {
+    try {
+      let response;
+      if (website.is_custom_upload) {
+        response = await authenticatedFetch(`http://localhost:8000/api/custom-uploads/${website.id}/publish/`, {
+          method: 'POST',
+        });
+      } else {
+        response = await authenticatedFetch(`http://localhost:8000/api/websites/${website.id}/publish/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      
+      if (response.ok) {
+        setWebsites(websites.map(w => w.id === website.id ? { ...w, is_published: true } : w));
+      }
+    } catch (err) {
+      console.error('Error publishing website:', err);
+    }
+  };
+
+  const handleUnpublish = async (website) => {
+    try {
+      let response;
+      if (website.is_custom_upload) {
+        response = await authenticatedFetch(`http://localhost:8000/api/custom-uploads/${website.id}/unpublish/`, {
+          method: 'POST',
+        });
+      } else {
+        response = await authenticatedFetch(`http://localhost:8000/api/websites/${website.id}/unpublish/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
+      
+      if (response.ok) {
+        setWebsites(websites.map(w => w.id === website.id ? { ...w, is_published: false } : w));
+      }
+    } catch (err) {
+      console.error('Error unpublishing website:', err);
+    }
+  };
+
+  const getTemplateName = (templateId) => {
+    if (!templateId) return 'Custom';
+    const templates = {
+      'portfolio': 'Portfolio',
+      'business': 'Business',
+      'ecommerce': 'E-Commerce',
+      'blog': 'Blog',
+      'landing': 'Landing Page',
+      'restaurant': 'Restaurant',
+      'real_estate': 'Real Estate',
+      'education': 'Education',
+      'nonprofit': 'Non-Profit',
+      'zip_upload': 'ZIP Upload',
+    };
+    return templates[templateId] || 'Custom';
+  };
+
+  const getTemplateIcon = (templateId) => {
+    if (!templateId) return '✨';
+    const icons = {
+      'portfolio': '🎨',
+      'business': '💼',
+      'ecommerce': '🛒',
+      'blog': '📝',
+      'landing': '🚀',
+      'restaurant': '🍽️',
+      'real_estate': '🏠',
+      'education': '📚',
+      'nonprofit': '❤️',
+      'zip_upload': '📦',
+    };
+    return icons[templateId] || '🌐';
+  };
+
   return (
     <SidebarLayout>
-      {/* Create button at top right corner */}
-      <Link 
-        to="/create" 
-        style={{
-          position: 'absolute',
-          top: '20px',
-          right: '20px',
-          padding: '10px 20px',
-          backgroundColor: '#007bff',
-          color: 'white',
-          textDecoration: 'none',
-          borderRadius: '5px',
-          fontSize: '14px',
-          fontWeight: 'bold',
-          zIndex: 100
-        }}
-      >
-        ➕ Create New Website
-      </Link>
-
-      <div className="page-header">
-        <h2>My Websites</h2>
+      <div className="websites-page-header">
+        <div>
+          <h2 className="websites-page-title">My Websites</h2>
+          <p className="websites-page-subtitle">Manage and organize all your websites</p>
+        </div>
+        <Link to="/create" className="btn-primary">
+          <span>➕</span> Create New Website
+        </Link>
       </div>
+
       {loading ? (
-        <div className="spinner"></div>
+        <div className="websites-loading">
+          <div className="spinner"></div>
+          <p>Loading your websites...</p>
+        </div>
       ) : websites.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-secondary)' }}>
-          <p style={{ fontSize: '1.2rem' }}>No websites yet</p>
+        <div className="websites-empty">
+          <div className="websites-empty-icon">🌐</div>
+          <h3>No websites yet</h3>
           <p>Create your first website to get started!</p>
-          <Link to="/create" className="btn-primary" style={{ marginTop: '20px' }}>Create Website</Link>
+          <Link to="/create" className="btn-primary">Create Website</Link>
         </div>
       ) : (
-        <div className="websites-grid">
+        <div className="websites-cards-grid">
           {websites.map((site) => (
             <div key={site.id} className="website-card">
-              <div className="website-card-image">🌐</div>
-              <div className="website-card-content">
-                <h3>{site.name}</h3>
-                <p>
-                  <span className={`website-status ${site.is_published ? 'published' : 'draft'}`}>
-                    {site.is_published ? "🟢 Published" : "⚪ Draft"}
-                  </span>
-                </p>
-                <div className="website-card-actions">
-                  <button className="btn-secondary">Edit</button>
-                  <button className="btn-secondary">Preview</button>
-                  {site.is_published ? (
-                    <button className="btn-secondary">Unpublish</button>
-                  ) : (
-                    <button className="btn-primary">Publish</button>
-                  )}
+              <div className="website-card-header">
+                <div className="website-card-title-row">
+                  <span className="website-card-icon">{getTemplateIcon(site.template_used_id)}</span>
+                  <h3 className="website-card-title">{site.name}</h3>
                 </div>
+                <span className={`website-status-badge ${site.is_published ? 'published' : 'draft'}`}>
+                  {site.is_published ? 'Published' : 'Draft'}
+                </span>
+              </div>
+              <div className="website-card-body">
+                <div className="website-card-thumbnail">
+                  <div className="website-template-preview">
+                    <span className="template-icon-large">{getTemplateIcon(site.template_used_id)}</span>
+                  </div>
+                </div>
+                <div className="website-card-meta">
+                  <div className="meta-row">
+                    <span className="meta-label">Template:</span>
+                    <span className="meta-value">{getTemplateName(site.template_used_id)}</span>
+                  </div>
+                  <div className="meta-row">
+                    <span className="meta-label">Last updated:</span>
+                    <span className="meta-value">{new Date(site.updated_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="website-card-actions">
+                <Link to={`/builder?id=${site.id}`} className="btn-action btn-edit">
+                  <span>✏️</span> Edit
+                </Link>
+                <Link to={`/preview?id=${site.id}`} className="btn-action btn-preview">
+                  <span>👁️</span> Preview
+                </Link>
+                {site.is_published ? (
+                  <button onClick={() => handleUnpublish(site)} className="btn-action btn-unpublish">
+                    <span>📤</span> Unpublish
+                  </button>
+                ) : (
+                  <button onClick={() => handlePublish(site)} className="btn-action btn-publish">
+                    <span>🚀</span> Publish
+                  </button>
+                )}
+                <button onClick={() => handleDelete(site.id, site.is_custom_upload)} className="btn-action btn-delete">
+                  <span>🗑️</span> Delete
+                </button>
               </div>
             </div>
           ))}
@@ -547,85 +855,170 @@ export const CreateWebsite = () => {
 // Preview Page
 export const Preview = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { authenticatedFetch } = useAuth();
+  const [publishing, setPublishing] = React.useState(false);
+  const [website, setWebsite] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+
+  const websiteId = new URLSearchParams(location.search).get('id');
+
+  React.useEffect(() => {
+    if (websiteId) {
+      fetchWebsite();
+    }
+  }, [websiteId]);
+
+  const fetchWebsite = async () => {
+    try {
+      // First try websites endpoint
+      let response = await authenticatedFetch(`http://localhost:8000/api/crud/websites/crud/${websiteId}/`);
+      let data = null;
+      
+      if (response.ok) {
+        data = await response.json();
+      } else if (response.status === 404) {
+        // Try custom-uploads endpoint
+        response = await authenticatedFetch(`http://localhost:8000/api/custom-uploads/${websiteId}/`);
+        if (response.ok) {
+          data = await response.json();
+          // Convert to website format
+          data = {
+            ...data,
+            name: data.name,
+            is_published: data.is_published,
+          };
+        }
+      }
+      
+      if (data) {
+        setWebsite(data);
+      }
+    } catch (err) {
+      console.error('Error fetching website:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!websiteId) return;
+    
+    setPublishing(true);
+    try {
+      // Try websites endpoint first
+      let response = await authenticatedFetch(`http://localhost:8000/api/websites/${websiteId}/publish/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (response.status === 404) {
+        // Try custom-uploads endpoint
+        response = await authenticatedFetch(`http://localhost:8000/api/custom-uploads/${websiteId}/publish/`, {
+          method: 'POST',
+        });
+      }
+
+      if (response.ok) {
+        setWebsite({ ...website, is_published: true });
+        navigate('/websites');
+      }
+    } catch (err) {
+      console.error('Publish failed:', err);
+    }
+    setPublishing(false);
+  };
+  
+  const handleUnpublish = async () => {
+    if (!websiteId) return;
+    
+    setPublishing(true);
+    try {
+      // Try websites endpoint first
+      let response = await authenticatedFetch(`http://localhost:8000/api/websites/${websiteId}/unpublish/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (response.status === 404) {
+        // Try custom-uploads endpoint
+        response = await authenticatedFetch(`http://localhost:8000/api/custom-uploads/${websiteId}/unpublish/`, {
+          method: 'POST',
+        });
+      }
+
+      if (response.ok) {
+        setWebsite({ ...website, is_published: false });
+        navigate('/websites');
+      }
+    } catch (err) {
+      console.error('Unpublish failed:', err);
+    }
+    setPublishing(false);
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <div className="spinner"></div>
+      </div>
+    );
+  }
+
+  if (!website) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column', gap: '16px' }}>
+        <p>Website not found</p>
+        <button onClick={() => navigate('/websites')} className="btn-primary">Back to My Websites</button>
+      </div>
+    );
+  }
+
+  // Check if this is a ZIP-uploaded website with extracted content
+  const isZipUpload = website.extracted_path || website.status === 'ready';
 
   return (
     <div className="preview-container">
       <div className="preview-banner">
         <span className="preview-banner-icon">👁️</span>
-        Preview Mode — This is how your site will look when published
+        Preview Mode — {website.name} — This is how your site will look when published
       </div>
       <div className="preview-actions">
-        <button className="btn-secondary" onClick={() => navigate("/builder")}>← Back to Editor</button>
-        <button className="btn-primary" onClick={() => alert("Website Published!")}>Publish Website</button>
+        <button className="btn-secondary" onClick={() => navigate(`/builder?id=${websiteId}`)}>← Back to Editor</button>
+        {website.is_published ? (
+          <button className="btn-secondary" onClick={handleUnpublish} disabled={publishing}>
+            {publishing ? "Unpublishing..." : "Unpublish Website"}
+          </button>
+        ) : (
+          <button className="btn-primary" onClick={handlePublish} disabled={publishing}>
+            {publishing ? "Publishing..." : "Publish Website"}
+          </button>
+        )}
       </div>
-      <div className="preview-website">
-        <nav style={{ display: "flex", justifyContent: "space-between", padding: "20px 40px", borderBottom: "1px solid var(--border)" }}>
-          <div style={{ fontWeight: 700 }}>My Portfolio</div>
-          <div style={{ display: "flex", gap: "24px" }}>
-            <span>Home</span>
-            <span>About</span>
-            <span>Contact</span>
+      {isZipUpload ? (
+        <iframe 
+          src={`/media/${website.extracted_path}/index.html`}
+          title={website.name}
+          style={{ width: '100%', height: 'calc(100vh - 140px)', border: 'none' }}
+        />
+      ) : (
+        <div className="preview-website">
+          <nav style={{ display: "flex", justifyContent: "space-between", padding: "20px 40px", borderBottom: "1px solid var(--border)" }}>
+            <div style={{ fontWeight: 700 }}>{website.name}</div>
+            <div style={{ display: "flex", gap: "24px" }}>
+              <span>Home</span>
+              <span>About</span>
+              <span>Contact</span>
+            </div>
+          </nav>
+          <div className="preview-hero" style={{ borderRadius: 0 }}>
+            <h1>Welcome to {website.name}</h1>
+            <p>This is a description of my website. Click to edit the text and make it your own.</p>
+            <button className="preview-btn">Click Me</button>
           </div>
-        </nav>
-        <div className="preview-hero" style={{ borderRadius: 0 }}>
-          <h1>Welcome to My Website</h1>
-          <p>This is a description of my website. Click to edit the text and make it your own.</p>
-          <button className="preview-btn">Click Me</button>
         </div>
-      </div>
+      )}
     </div>
-  );
-};
-
-// Gallery Page
-export const Gallery = () => {
-  React.useEffect(() => {
-    document.title = "Gallery";
-  }, []);
-
-  const images = [
-    { id: 1, icon: "🏔️" },
-    { id: 2, icon: "🌊" },
-    { id: 3, icon: "🌅" },
-    { id: 4, icon: "🌲" },
-    { id: 5, icon: "🏙️" },
-    { id: 6, icon: "🌺" },
-  ];
-
-  return (
-    <SidebarLayout>
-      <div className="gallery-header">
-        <div>
-          <h2>Gallery</h2>
-          <p style={{ color: "var(--text-secondary)" }}>Upload and manage your images</p>
-        </div>
-        <button className="btn-primary btn-icon">⬆️ Upload Image</button>
-      </div>
-      <div className="gallery-grid">
-        <div className="gallery-upload">
-          <span className="gallery-upload-icon">➕</span>
-          <span>Upload New</span>
-        </div>
-        {images.map((img) => (
-          <div key={img.id} className="gallery-item">
-            <div style={{ 
-              width: "100%", 
-              height: "100%", 
-              display: "flex", 
-              alignItems: "center", 
-              justifyContent: "center",
-              fontSize: "4rem",
-              background: "linear-gradient(135deg, var(--background), white)"
-            }}>
-              {img.icon}
-            </div>
-            <div className="gallery-item-overlay">
-              <button className="btn-secondary" style={{ color: "white", borderColor: "white" }}>Delete</button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </SidebarLayout>
   );
 };
 
@@ -762,26 +1155,40 @@ const ProtectedRoute = ({ children, checkPlan = true }) => {
 export default function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/select-plan" element={<PlanSelection />} />
-          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/websites" element={<ProtectedRoute><Websites /></ProtectedRoute>} />
-          <Route path="/create" element={<ProtectedRoute><SidebarLayout><CreateWebsitePage /></SidebarLayout></ProtectedRoute>} />
-          <Route path="/builder" element={<ProtectedRoute><WebsiteBuilder /></ProtectedRoute>} />
-          <Route path="/preview" element={<ProtectedRoute><Preview /></ProtectedRoute>} />
-          <Route path="/gallery" element={<ProtectedRoute><SidebarLayout><TemplateGallery /></SidebarLayout></ProtectedRoute>} />
-          <Route path="/order-template" element={<ProtectedRoute><SidebarLayout><OrderTemplate /></SidebarLayout></ProtectedRoute>} />
-          <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-          <Route path="/verify-email" element={<VerifyEmail />} />
-          <Route path="/oauth/google/callback" element={<OAuthCallback />} />
-          <Route path="/oauth/facebook/callback" element={<OAuthCallback />} />
-        </Routes>
-      </Router>
+      <ToastProvider>
+        <ToastWrapper />
+        <AppRoutes />
+      </ToastProvider>
     </AuthProvider>
+  );
+}
+
+function ToastWrapper() {
+  const { toast, hideToast } = useToast();
+  return <Toast message={toast} onClose={hideToast} />;
+}
+
+function AppRoutes() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/select-plan" element={<PlanSelection />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/websites" element={<ProtectedRoute><Websites /></ProtectedRoute>} />
+        <Route path="/builder" element={<ProtectedRoute><WebsiteBuilder /></ProtectedRoute>} />
+        <Route path="/preview" element={<ProtectedRoute><Preview /></ProtectedRoute>} />
+        <Route path="/gallery" element={<ProtectedRoute><SidebarLayout><CreateWebsitePage /></SidebarLayout></ProtectedRoute>} />
+        <Route path="/media" element={<ProtectedRoute><SidebarLayout><Gallery /></SidebarLayout></ProtectedRoute>} />
+        <Route path="/order-template" element={<ProtectedRoute><SidebarLayout><OrderTemplate /></SidebarLayout></ProtectedRoute>} />
+        <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route path="/oauth/google/callback" element={<OAuthCallback />} />
+        <Route path="/oauth/facebook/callback" element={<OAuthCallback />} />
+      </Routes>
+    </Router>
   );
 }

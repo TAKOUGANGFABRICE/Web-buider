@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   padding: 2rem;
 }
 
@@ -75,7 +75,7 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #2563eb;
   background: white;
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
 }
@@ -102,7 +102,7 @@
 }
 
 .login-button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -142,14 +142,14 @@
 }
 
 .login-footer a {
-  color: #667eea;
+  color: #2563eb;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
 .login-footer a:hover {
-  color: #764ba2;
+  color: #1d4ed8;
   text-decoration: underline;
 }
 
@@ -159,7 +159,7 @@
 }
 
 .forgot-password-link a {
-  color: #667eea;
+  color: #2563eb;
   text-decoration: none;
   font-size: 0.85rem;
   font-weight: 500;
@@ -167,7 +167,7 @@
 }
 
 .forgot-password-link a:hover {
-  color: #764ba2;
+  color: #1d4ed8;
   text-decoration: underline;
 }
 

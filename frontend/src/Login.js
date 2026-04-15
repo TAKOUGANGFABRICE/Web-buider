@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import './Login.css';
 
@@ -11,6 +12,7 @@ function Login({ onSwitchToRegister, onSwitchToForgotPassword }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState(null);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,7 +28,9 @@ function Login({ onSwitchToRegister, onSwitchToForgotPassword }) {
     try {
       const result = await login(username, password);
       
-      if (!result.success) {
+      if (result.success) {
+        navigate('/dashboard');
+      } else {
         setError(result.error || 'Login failed. Please check your credentials.');
       }
     } catch (err) {

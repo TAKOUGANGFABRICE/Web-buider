@@ -55,13 +55,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Login function
-  const login = async (username, password) => {
+  const login = async (username, password, rememberMe = false) => {
     setError(null);
     try {
-      const response = await fetch(`${API_URL}/token/`, {
+      const response = await fetch(`${API_URL}/login/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, remember_me: rememberMe }),
       });
 
       const data = await response.json();
@@ -74,8 +74,42 @@ export const AuthProvider = ({ children }) => {
         // Fetch user profile after successful login
         await fetchUserProfile();
         return { success: true };
+      } else if (data.requires_2fa) {
+        return { success: false, requires_2fa: true, message: data.message || 'Please enter your 2FA code' };
+      } else if (data.locked) {
+        return { success: false, locked: true, retry_after: data.retry_after, error: data.error || 'Account locked' };
       } else {
-        const errorMessage = data.detail || 'Invalid username or password';
+        const errorMessage = data.error || data.detail || 'Invalid username or password';
+        setError(errorMessage);
+        return { success: false, error: errorMessage };
+      }
+    } catch (err) {
+      const errorMessage = 'Network error. Please check your connection.';
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  };
+
+  // Login with 2FA code
+  const loginWith2fa = async (username, password, twoFactorCode, rememberMe = false) => {
+    setError(null);
+    try {
+      const response = await fetch(`${API_URL}/login/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, remember_me: rememberMe, "2fa_code": twoFactorCode }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('access', data.access);
+        localStorage.setItem('refresh', data.refresh);
+        localStorage.setItem('username', username);
+        await fetchUserProfile();
+        return { success: true };
+      } else {
+        const errorMessage = data.error || 'Invalid 2FA code';
         setError(errorMessage);
         return { success: false, error: errorMessage };
       }
@@ -194,6 +228,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     error,
     login,
+    loginWith2fa,
     register,
     logout,
     refreshToken,

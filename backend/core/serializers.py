@@ -17,6 +17,8 @@ from .models import (
     TeamMember,
     Domain,
     PageElement,
+    CustomWebsiteUpload,
+    WebsiteTemplateJSON,
 )
 
 
@@ -54,6 +56,17 @@ class WebsiteSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
+    page_elements = serializers.SerializerMethodField()
+
+    def get_page_elements(self, obj):
+        elements = obj.page_elements.all()[:6]
+        return [
+            {
+                "element_type": e.element_type,
+                "element_data": e.element_data,
+            }
+            for e in elements
+        ]
 
     class Meta:
         model = Website
@@ -68,11 +81,14 @@ class WebsiteSerializer(serializers.ModelSerializer):
             "custom_domain",
             "template_used",
             "template_used_id",
+            "is_scratch",
+            "initial_content",
             "settings",
             "seo_title",
             "seo_description",
             "created_at",
             "updated_at",
+            "page_elements",
         ]
         read_only_fields = ["owner", "created_at", "updated_at"]
 
@@ -98,6 +114,8 @@ class BillingPlanSerializer(serializers.ModelSerializer):
             "price",
             "billing_period",
             "description",
+            "hosting_type",
+            "disk_space_gb",
             "max_websites",
             "max_templates_access",
             "can_use_custom_domain",
@@ -419,3 +437,59 @@ class PageElementSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+
+# Custom Website Upload Serializers
+
+
+class CustomWebsiteUploadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomWebsiteUpload
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "zip_file",
+            "extracted_path",
+            "source",
+            "status",
+            "error_message",
+            "file_size",
+            "is_published",
+            "published_at",
+            "custom_domain",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = [
+            "owner",
+            "extracted_path",
+            "status",
+            "error_message",
+            "created_at",
+            "updated_at",
+        ]
+
+
+class CustomWebsiteUploadCreateSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=100)
+    zip_file = serializers.FileField()
+
+
+class WebsiteTemplateJSONSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WebsiteTemplateJSON
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "description",
+            "json_structure",
+            "source_html",
+            "thumbnail",
+            "is_active",
+            "created_from_upload",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["created_at", "updated_at"]

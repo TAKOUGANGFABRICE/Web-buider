@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import './Register.css';
 
@@ -14,7 +15,7 @@ function Register({ onSwitchToLogin }) {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -84,7 +85,7 @@ function Register({ onSwitchToLogin }) {
       const result = await register(registrationData);
       
       if (result.success) {
-        setSuccess(true);
+        navigate('/dashboard');
       } else {
         setError(result.error || 'Registration failed. Please try again.');
       }
@@ -94,22 +95,6 @@ function Register({ onSwitchToLogin }) {
       setLoading(false);
     }
   };
-
-  if (success) {
-    return (
-      <div className="register-container">
-        <div className="register-card">
-          <div className="register-header">
-            <h2>🎉 Welcome!</h2>
-            <p>Your account has been created successfully.</p>
-          </div>
-          <div className="success-message">
-            Redirecting to your dashboard...
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="register-container">

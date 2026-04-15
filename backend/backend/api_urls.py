@@ -20,6 +20,7 @@ from core.views import (
     WebsiteViewSet,
     BillingPlanListView,
     UserBillingPlanView,
+    UserPlanInfoView,
     SelectBillingPlanView,
     CheckPlanSelectionView,
     TemplateListView,
@@ -32,19 +33,58 @@ from core.views import (
     PasswordResetRequestView,
     PasswordResetConfirmView,
     SocialLoginView,
+    WebsiteTeamView,
+    WebsiteTeamMemberView,
+    PublicWebsiteView,
+    LoginView,
+    LoginHistoryView,
+    UserSessionsView,
+    RevokeSessionView,
+    TwoFactorSetupView,
+    TwoFactorVerifyView,
+    TwoFactorDisableView,
+    MagicLoginRequestView,
+    MagicLoginVerifyView,
+    MediaImageListCreateView,
+    MediaImageDetailView,
+)
+from core.custom_upload_views import (
+    CustomWebsiteUploadViewSet,
+    WebsiteTemplateJSONViewSet,
 )
 
 router = DefaultRouter()
 router.register(r"websites", WebsiteViewSet, basename="website")
 router.register(r"user-templates", UserTemplateViewSet, basename="user-template")
 router.register(r"template-orders", TemplateOrderViewSet, basename="template-order")
+router.register(r"custom-uploads", CustomWebsiteUploadViewSet, basename="custom-upload")
+router.register(r"template-json", WebsiteTemplateJSONViewSet, basename="template-json")
 
 urlpatterns = [
     # Authentication
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("login/", LoginView.as_view(), name="login"),
     path("register/", RegisterView.as_view(), name="register"),
     path("user-profile/", UserProfileView.as_view(), name="user_profile"),
+    path("my-plan/", UserPlanInfoView.as_view(), name="my_plan"),
+    # Login History & Sessions
+    path("login-history/", LoginHistoryView.as_view(), name="login_history"),
+    path("sessions/", UserSessionsView.as_view(), name="user_sessions"),
+    path(
+        "sessions/<int:session_id>/revoke/",
+        RevokeSessionView.as_view(),
+        name="revoke_session",
+    ),
+    # 2FA
+    path("2fa/setup/", TwoFactorSetupView.as_view(), name="2fa_setup"),
+    path("2fa/verify/", TwoFactorVerifyView.as_view(), name="2fa_verify"),
+    path("2fa/disable/", TwoFactorDisableView.as_view(), name="2fa_disable"),
+    # Magic Link Login
+    path("magic-login/", MagicLoginRequestView.as_view(), name="magic_login_request"),
+    path(
+        "magic-login/verify/", MagicLoginVerifyView.as_view(), name="magic_login_verify"
+    ),
     # Email Verification
     path("verify-email/", VerifyEmailView.as_view(), name="verify_email"),
     path(
@@ -124,4 +164,29 @@ urlpatterns = [
     ),
     # Webhooks
     path("webhooks/stripe/", StripeWebhookView.as_view(), name="stripe_webhook"),
+    # Team Management
+    path(
+        "websites/<int:website_id>/team/",
+        WebsiteTeamView.as_view(),
+        name="website_team",
+    ),
+    path(
+        "websites/<int:website_id>/team/<int:member_id>/",
+        WebsiteTeamMemberView.as_view(),
+        name="website_team_member",
+    ),
+    # Public Website View
+    path("public/website/", PublicWebsiteView.as_view(), name="public_website"),
+    path(
+        "public/website/<int:website_id>/",
+        PublicWebsiteView.as_view(),
+        name="public_website_by_id",
+    ),
+    # Media Gallery
+    path("media/images/", MediaImageListCreateView.as_view(), name="media_images"),
+    path(
+        "media/images/<int:image_id>/",
+        MediaImageDetailView.as_view(),
+        name="media_image_detail",
+    ),
 ]

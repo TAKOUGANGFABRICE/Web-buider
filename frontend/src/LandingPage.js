@@ -76,29 +76,64 @@ function LandingPage() {
         </div>
         <div className="pricing-grid">
           <div className="pricing-card animate-fade-in-up animate-delay-1">
-            <h3>Free</h3>
+            <h3>Starter</h3>
             <div className="price">$0</div>
             <p className="price-period">Forever free</p>
             <ul className="pricing-features">
-              <li>Create drafts and preview websites</li>
-              <li>Basic templates</li>
-              <li>Community support</li>
+              <li>✅ 1 Website</li>
+              <li>✅ 3 Free Templates</li>
+              <li>✅ Website Builder</li>
+              <li>✅ Preview Mode</li>
+              <li>❌ Custom Domain</li>
+              <li>❌ Team Members</li>
+              <li>❌ Priority Support</li>
+              <li>❌ Analytics</li>
             </ul>
             <Link to="/signup" className="btn-outline">Get Started</Link>
           </div>
           <div className="pricing-card featured animate-fade-in-up animate-delay-2">
             <div className="popular-badge">Most Popular</div>
-            <h3>Premium</h3>
+            <h3>Basic</h3>
             <div className="price">$10<span>/month</span></div>
-            <p className="price-period">Publish your site</p>
+            <p className="price-period">Great for personal sites</p>
             <ul className="pricing-features">
-              <li>Everything in Free</li>
-              <li>Publish unlimited websites</li>
-              <li>Premium templates</li>
-              <li>Custom domain</li>
-              <li>Priority support</li>
+              <li>✅ 3 Websites</li>
+              <li>✅ All Templates</li>
+              <li>✅ Custom Domain</li>
+              <li>✅ Basic Analytics</li>
+              <li>❌ Team Members</li>
+              <li>❌ Remove Branding</li>
             </ul>
-            <Link to="/signup" className="btn-primary">Upgrade to Premium</Link>
+            <Link to="/signup" className="btn-primary">Get Started</Link>
+          </div>
+          <div className="pricing-card animate-fade-in-up animate-delay-3">
+            <h3>Pro</h3>
+            <div className="price">$30<span>/month</span></div>
+            <p className="price-period">For growing businesses</p>
+            <ul className="pricing-features">
+              <li>✅ 10 Websites</li>
+              <li>✅ All Templates</li>
+              <li>✅ Custom Domain</li>
+              <li>✅ Team Members (5)</li>
+              <li>✅ Priority Support</li>
+              <li>✅ API Access</li>
+              <li>✅ Advanced Analytics</li>
+            </ul>
+            <Link to="/signup" className="btn-outline">Get Started</Link>
+          </div>
+          <div className="pricing-card animate-fade-in-up animate-delay-4">
+            <h3>Enterprise</h3>
+            <div className="price">$100<span>/month</span></div>
+            <p className="price-period">For large organizations</p>
+            <ul className="pricing-features">
+              <li>✅ Unlimited Websites</li>
+              <li>✅ Unlimited Team Members</li>
+              <li>✅ White Label</li>
+              <li>✅ 24/7 Support</li>
+              <li>✅ SSO/SAML</li>
+              <li>✅ Custom Templates</li>
+            </ul>
+            <Link to="/signup" className="btn-outline">Contact Sales</Link>
           </div>
         </div>
       </section>

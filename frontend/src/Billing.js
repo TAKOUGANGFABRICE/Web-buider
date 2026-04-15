@@ -1,31 +1,46 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import PaymentModal from './PaymentModal';
 import './Billing.css';
 
+const API_URL = 'http://localhost:8000/api';
+
 const Billing = () => {
-  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [subscription, setSubscription] = useState(null);
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [confirmDialog, setConfirmDialog] = useState(null);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState('premium');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
-
-  const successParam = searchParams.get('success');
-  const canceledParam = searchParams.get('canceled');
+  const [plans, setPlans] = useState([]);
 
   useEffect(() => {
     fetchBillingData();
-    
-    if (successParam === 'true') {
-      setShowSuccessMessage(true);
-      setTimeout(() => setShowSuccessMessage(false), 5000);
-    }
+    fetchPlans();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [successParam]);
+  }, []);
+
+  const fetchPlans = async () => {
+    try {
+      const token = localStorage.getItem('access');
+      const response = await fetch(`${API_URL}/billing-plans/`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const monthlyPlans = data.filter(plan => plan.billing_period === 'monthly' && plan.is_active);
+        setPlans(monthlyPlans);
+      }
+    } catch (err) {
+      console.error('Error fetching plans:', err);
+    }
+  };
 
   const fetchBillingData = async () => {
     try {
@@ -39,6 +54,22 @@ const Billing = () => {
       if (subResponse.ok) {
         const subData = await subResponse.json();
         setSubscription(subData);
+      }
+      
+      // Fetch user billing plan
+      const billingResponse = await fetch('http://localhost:8000/api/billing/', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (billingResponse.ok) {
+        const billingData = await billingResponse.json();
+        if (billingData.plan) {
+          setSubscription(prev => ({
+            ...prev,
+            plan: billingData.plan.name?.toLowerCase() || 'free',
+            planDetails: billingData.plan
+          }));
+        }
       }
       
       // Fetch invoices
@@ -57,12 +88,20 @@ const Billing = () => {
     }
   };
 
-  const handleUpgrade = (plan) => {
+  const handleUpgrade = async (plan) => {
     setSelectedPlan(plan);
     setShowPaymentModal(true);
   };
 
+  const handlePaymentSuccess = () => {
+    setShowPaymentModal(false);
+    setShowSuccessMessage(true);
+    fetchBillingData();
+    setTimeout(() => setShowSuccessMessage(false), 5000);
+  };
+
   const handleCancelSubscription = async () => {
+    setCancelLoading(true);
     try {
       const token = localStorage.getItem('access');
       const response = await fetch('http://localhost:8000/api/subscription/cancel/', {
@@ -72,11 +111,12 @@ const Billing = () => {
       
       if (response.ok) {
         fetchBillingData();
-        setShowCancelModal(false);
+        setConfirmDialog(null);
       }
     } catch (err) {
       setError('Failed to cancel subscription');
     }
+    setCancelLoading(false);
   };
 
   const formatDate = (dateString) => {
@@ -133,20 +173,6 @@ const Billing = () => {
         <p>Manage your subscription and view your invoices</p>
       </div>
 
-      {showSuccessMessage && (
-        <div className="success-banner">
-          <span className="success-icon">✓</span>
-          <span>Payment successful! Your subscription has been upgraded.</span>
-          <button onClick={() => setShowSuccessMessage(false)}>×</button>
-        </div>
-      )}
-
-      {canceledParam === 'true' && (
-        <div className="info-banner">
-          <span>Payment was canceled. No charges were made.</span>
-        </div>
-      )}
-
       {error && <div className="error-banner">{error}</div>}
 
       {/* Current Subscription */}
@@ -156,16 +182,16 @@ const Billing = () => {
           <div className="subscription-card">
             <div className="subscription-info">
               <div className="plan-badge">
-                <span className={`plan-icon plan-${subscription.plan}`}>
-                  {subscription.plan === 'free' ? '🆓' : subscription.plan === 'premium' ? '💎' : '🏢'}
+                <span className={`plan-icon plan-${typeof subscription.plan === 'string' ? subscription.plan : 'free'}`}>
+                  {(typeof subscription.plan === 'string' ? subscription.plan : 'free') === 'free' ? '🆓' : (typeof subscription.plan === 'string' ? subscription.plan : 'free') === 'premium' ? '💎' : '🏢'}
                 </span>
                 <div>
-                  <h3>{subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)} Plan</h3>
+                  <h3>{(typeof subscription.plan === 'string' ? subscription.plan : 'Free').charAt(0).toUpperCase() + (typeof subscription.plan === 'string' ? subscription.plan : 'Free').slice(1)} Plan</h3>
                   {getSubscriptionStatusBadge(subscription.status)}
                 </div>
               </div>
               
-              {subscription.plan !== 'free' && (
+              {(typeof subscription.plan === 'string' ? subscription.plan : 'free') !== 'free' && (
                 <div className="subscription-details">
                   <div className="detail-item">
                     <span className="detail-label">Current Period</span>
@@ -189,7 +215,13 @@ const Billing = () => {
               ) : (
                 <>
                   {subscription.status === 'active' && (
-                    <button className="btn-cancel" onClick={() => setShowCancelModal(true)}>
+                    <button className="btn-cancel" onClick={() => setConfirmDialog({
+                      title: 'Cancel Subscription?',
+                      message: `Are you sure you want to cancel your subscription? You'll still have access until the end of your current billing period (${subscription && formatDate(subscription.current_period_end)}).`,
+                      confirmText: 'Cancel Subscription',
+                      cancelText: 'Keep Subscription',
+                      onConfirm: handleCancelSubscription
+                    })}>
                       Cancel Subscription
                     </button>
                   )}
@@ -200,55 +232,74 @@ const Billing = () => {
         )}
       </div>
 
-      {/* Pricing Plans */}
-      {(!subscription || subscription.plan === 'free') && (
-        <div className="billing-section">
-          <h2>Upgrade Your Plan</h2>
-          <div className="pricing-plans">
-            <div className="pricing-card">
-              <div className="pricing-header">
-                <h3>Premium</h3>
-                <div className="pricing-price">
-                  <span className="price">$10</span>
-                  <span className="period">/month</span>
-                </div>
-              </div>
-              <ul className="pricing-features">
-                <li>✓ Unlimited websites</li>
-                <li>✓ Custom domains</li>
-                <li>✓ Remove WaaS branding</li>
-                <li>✓ Premium templates</li>
-                <li>✓ Priority support</li>
-              </ul>
-              <button className="btn-select-plan" onClick={() => handleUpgrade('premium')}>
-                Select Premium
-              </button>
-            </div>
-            
-            <div className="pricing-card featured">
-              <div className="popular-badge">Most Popular</div>
-              <div className="pricing-header">
-                <h3>Business</h3>
-                <div className="pricing-price">
-                  <span className="price">$29</span>
-                  <span className="period">/month</span>
-                </div>
-              </div>
-              <ul className="pricing-features">
-                <li>✓ Everything in Premium</li>
-                <li>✓ Team collaboration (5 members)</li>
-                <li>✓ Advanced analytics</li>
-                <li>✓ API access</li>
-                <li>✓ Dedicated support</li>
-                <li>✓ White-label option</li>
-              </ul>
-              <button className="btn-select-plan btn-featured" onClick={() => handleUpgrade('business')}>
-                Select Business
-              </button>
-            </div>
+      {/* Pricing Plans - Fetched from API */}
+      <div className="billing-section">
+        <h2>Subscription Plans</h2>
+        <p className="section-subtitle">Choose a plan that works for you. Pay with Card or Mobile Money.</p>
+        
+        {plans.length === 0 ? (
+          <div className="loading-plans">
+            <div className="spinner"></div>
+            <p>Loading plans...</p>
           </div>
-        </div>
-      )}
+        ) : (
+          <div className="pricing-plans">
+            {plans.map((plan) => (
+              <div 
+                key={plan.id} 
+                className={`pricing-card ${plan.is_popular ? 'featured' : ''}`}
+              >
+                {plan.is_popular && <div className="popular-badge">Most Popular</div>}
+                <div className="pricing-header">
+                  <h3>{plan.name}</h3>
+                  <div className="pricing-price">
+                    <span className="price">
+                      {parseFloat(plan.price) === 0 ? 'Free' : `$${plan.price}`}
+                    </span>
+                    <span className="period">
+                      {parseFloat(plan.price) > 0 ? `/${plan.billing_period}` : ''}
+                    </span>
+                  </div>
+                  {plan.description && (
+                    <p className="plan-description">{plan.description}</p>
+                  )}
+                </div>
+                <ul className="pricing-features">
+                  <li>
+                    {plan.max_websites === -1 ? '✓ Unlimited websites' : `✓ Up to ${plan.max_websites} websites`}
+                  </li>
+                  {plan.can_use_custom_domain && <li>✓ Custom domains</li>}
+                  {plan.can_remove_branding && <li>✓ Remove branding</li>}
+                  {plan.can_access_api && <li>✓ API access</li>}
+                  {plan.can_have_team_members && (
+                    <li>
+                      {plan.max_team_members === -1 
+                        ? '✓ Unlimited team members' 
+                        : `✓ Up to ${plan.max_team_members} team members`}
+                    </li>
+                  )}
+                  {plan.has_priority_support && <li>✓ Priority support</li>}
+                  {plan.has_analytics && <li>✓ Analytics</li>}
+                  {plan.has_white_label && <li>✓ White-label</li>}
+                </ul>
+                {subscription?.planDetails?.name?.toLowerCase() === plan.name.toLowerCase() ? (
+                  <button className="btn-select-plan current-plan" disabled>
+                    Current Plan
+                  </button>
+                ) : parseFloat(plan.price) === 0 ? (
+                  <button className="btn-select-plan" onClick={() => handleUpgrade(plan)}>
+                    Select Free
+                  </button>
+                ) : (
+                  <button className={`btn-select-plan ${plan.is_popular ? 'btn-featured' : ''}`} onClick={() => handleUpgrade(plan)}>
+                    {parseFloat(plan.price) < parseFloat(subscription?.planDetails?.price || 0) ? 'Downgrade' : 'Upgrade'}
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Payment Methods */}
       <div className="billing-section">
@@ -318,32 +369,33 @@ const Billing = () => {
         )}
       </div>
 
-      {/* Payment Modal */}
-      <PaymentModal
-        isOpen={showPaymentModal}
-        onClose={() => setShowPaymentModal(false)}
-        plan={selectedPlan}
-      />
-
       {/* Cancel Confirmation Modal */}
-      {showCancelModal && (
-        <div className="modal-overlay" onClick={() => setShowCancelModal(false)}>
+      {confirmDialog && (
+        <div className="modal-overlay" onClick={() => setConfirmDialog(null)}>
           <div className="modal-content cancel-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Cancel Subscription?</h3>
-            <p>
-              Are you sure you want to cancel your subscription? You'll still have access 
-              until the end of your current billing period ({subscription && formatDate(subscription.current_period_end)}).
-            </p>
+            <h3>{confirmDialog.title}</h3>
+            <p>{confirmDialog.message}</p>
             <div className="modal-actions">
-              <button className="btn-secondary" onClick={() => setShowCancelModal(false)}>
-                Keep Subscription
+              <button className="btn-secondary" onClick={() => setConfirmDialog(null)}>
+                {confirmDialog.cancelText || 'Cancel'}
               </button>
-              <button className="btn-danger" onClick={handleCancelSubscription}>
-                Cancel Subscription
+              <button className="btn-danger" onClick={() => {
+                confirmDialog.onConfirm();
+                setConfirmDialog(null);
+              }}>
+                {confirmDialog.confirmText || 'Confirm'}
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {showPaymentModal && (
+        <PaymentModal 
+          isOpen={showPaymentModal} 
+          onClose={() => setShowPaymentModal(false)} 
+          plan={selectedPlan}
+        />
       )}
     </div>
   );

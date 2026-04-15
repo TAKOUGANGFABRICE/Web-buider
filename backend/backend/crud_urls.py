@@ -55,6 +55,7 @@ urlpatterns = [
         name="billing-plan-features",
     ),
     path(
+    
         "invoices/generate-number/",
         InvoiceCRUDView.as_view({"get": "generate_number"}),
         name="invoice-generate-number",

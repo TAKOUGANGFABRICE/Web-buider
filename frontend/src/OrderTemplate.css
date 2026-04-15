@@ -67,13 +67,13 @@
 }
 
 .order-type-card:hover {
-  border-color: #667eea;
+  border-color: #2563eb;
   transform: translateY(-3px);
   box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
 }
 
 .order-type-card.selected {
-  border-color: #667eea;
+  border-color: #2563eb;
   background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%);
   box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
 }
@@ -124,7 +124,7 @@
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #2563eb;
   background: white;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
 }
@@ -162,7 +162,7 @@
 .btn-submit-order {
   width: 100%;
   padding: 1.1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   border: none;
   border-radius: 12px;
@@ -228,7 +228,7 @@
 
 .btn-upgrade-plan {
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   color: white;
   border: none;
   border-radius: 12px;
