@@ -1,0 +1,132 @@
+# 
+# ========================================================================
+# .HTACCESS - Apache Configuration for cPanel Static Website
+# ========================================================================
+#
+# This file configures the Apache web server for the static website.
+# It handles URL routing, compression, caching, and security.
+#
+# Upload this file to your public_html folder on cPanel
+# ========================================================================
+
+# Check if mod_rewrite module is available
+# This module handles URL rewriting (required for clean URLs)
+<IfModule mod_rewrite.c>
+    # Turn on the rewrite engine
+    RewriteEngine On
+    
+    # Set the base directory for rewrites
+    RewriteBase /
+    
+    # --------------------------------------------------------------------
+    # ALLOW STATIC FILES
+    # --------------------------------------------------------------------
+    # If the request is for about.html, serve it directly
+    RewriteRule ^about\.html$ - [L]
+    
+    # If the request is for index.html, serve it directly
+    RewriteRule ^index\.html$ - [L]
+    
+    # If the request starts with static/, serve directly (CSS, JS, images)
+    # [L] = Last rule, stop processing
+    RewriteRule ^static\/ - [L]
+    
+    # --------------------------------------------------------------------
+    # CATCH-ALL ROUTING
+    # --------------------------------------------------------------------
+    # If the requested file doesn't exist as a real file
+    RewriteCond %{REQUEST_FILENAME} !-f
+    # And doesn't exist as a real directory
+    RewriteCond %{REQUEST_FILENAME} !-d
+    # Then serve index.html (SPA-style routing)
+    # This allows the site to work as a Single Page Application
+    RewriteRule ^(.*)$ index.html [L]
+</IfModule>
+
+# --------------------------------------------------------------------
+# GZIP COMPRESSION - Compress files before sending
+# Reduces file size by ~70%, faster loading
+# --------------------------------------------------------------------
+<IfModule mod_deflate.c>
+    # Compress these file types:
+    AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript
+    
+    # Alternative syntax (some servers prefer this):
+    # AddOutputFilter DEFLATE html txt css js
+</IfModule>
+
+# --------------------------------------------------------------------
+# BROWSER CACHING - Speed up return visits
+# Stores static files in browser for 1 year
+# --------------------------------------------------------------------
+<IfModule mod_expires.c>
+    # Turn on caching
+    ExpiresActive On
+    
+    # CSS files: cache for 1 year
+    ExpiresByType text/css "access plus 1 year"
+    
+    # JavaScript files: cache for 1 year
+    ExpiresByType application/javascript "access plus 1 year"
+    
+    # Images: cache for 1 year
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+</IfModule>
+
+# --------------------------------------------------------------------
+# SECURITY HEADERS - Protect against common attacks
+# --------------------------------------------------------------------
+<IfModule mod_headers.c>
+    # Prevent MIME-type sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Prevent clickjacking (only allow from same origin)
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # Optional: XSS protection (older browsers)
+    Header set X-XSS-Protection "1; mode=block"
+</IfModule>
+
+# --------------------------------------------------------------------
+# DIRECTORY INDEX - Default files to serve
+# --------------------------------------------------------------------
+# If someone visits yourdomain.com/, serve these files in order:
+DirectoryIndex index.html index.htm
+
+# --------------------------------------------------------------------
+# ERROR PAGES - Custom error handling
+# --------------------------------------------------------------------
+# Example: Redirect 404 errors to custom page
+# ErrorDocument 404 /404.html
+
+# Example: Redirect 500 errors
+# ErrorDocument 500 /500.html
+
+
+# ========================================================================
+# NOTES FOR CPANEL
+# ========================================================================
+#
+# 1. This .htaccess file goes in public_html/
+#
+# 2. The static/ folder should also be in public_html/
+#    Structure:
+#    public_html/
+#    ├── index.html
+#    ├── about.html
+#    ├── .htaccess
+#    └── static/
+#        ├── css/
+#        │   └── style.css
+#        └── js/
+#            └── main.js
+#
+# 3. If you get 500 errors, some modules may not be enabled
+#    Contact cPanel support to enable mod_rewrite
+#
+# 4. To test, visit your domain - should show index.html
+#
+# ========================================================================

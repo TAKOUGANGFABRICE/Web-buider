@@ -1,0 +1,2 @@
+# Procfile for deployment on Heroku, Railway, Render, etc.
+web: cd backend && gunicorn backend.wsgi --log-file -

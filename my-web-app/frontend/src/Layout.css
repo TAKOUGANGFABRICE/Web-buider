@@ -1,0 +1,240 @@
+.layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
+  background: #FFFFFF;
+}
+
+.sidebar,
+.app-sidebar,
+.dashboard-sidebar,
+aside[class*="sidebar"] {
+  min-height: 100vh;
+  border-right: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(4, 11, 26, 0.94);
+  color: #dbe4ff;
+  padding: 14px 12px;
+  box-shadow: 16px 0 48px rgba(0, 0, 0, 0.18);
+}
+
+.sidebar-header,
+.brand,
+.logo,
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  margin-bottom: 14px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 850;
+  letter-spacing: 0;
+}
+
+.sidebar-header::before,
+.brand::before,
+.app-logo::before {
+  content: "";
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, #7c5cff, #4e2be8),
+    url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 28 28' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M14 4L23 9L14 14L5 9L14 4Z' stroke='white' stroke-width='2.4' stroke-linejoin='round'/%3E%3Cpath d='M23 14L14 19L5 14' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M23 19L14 24L5 19' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 23px no-repeat;
+  box-shadow: 0 12px 24px rgba(91, 53, 245, 0.32);
+}
+
+.sidebar nav,
+.sidebar-nav,
+.nav-menu,
+.navigation {
+  display: grid;
+  gap: 4px;
+}
+
+.sidebar a,
+.sidebar button,
+.sidebar-nav a,
+.sidebar-nav button,
+.nav-menu a,
+.nav-menu button,
+.navigation a,
+.navigation button {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: #b8c4e3;
+  font-size: 13px;
+  font-weight: 750;
+  padding: 0 10px;
+  text-align: left;
+  box-shadow: none;
+}
+
+.sidebar a:hover,
+.sidebar button:hover,
+.sidebar a.active,
+.sidebar button.active,
+.sidebar-nav a:hover,
+.sidebar-nav button:hover,
+.sidebar-nav a.active,
+.sidebar-nav button.active,
+.nav-menu a:hover,
+.nav-menu button:hover,
+.nav-menu a.active,
+.nav-menu button.active,
+.navigation a:hover,
+.navigation button:hover,
+.navigation a.active,
+.navigation button.active {
+  border-color: rgba(124, 92, 255, 0.42);
+  background: linear-gradient(180deg, rgba(124, 92, 255, 0.95), rgba(91, 53, 245, 0.95));
+  color: #fff;
+}
+
+.main-content,
+.content,
+.layout-content,
+main {
+  min-width: 0;
+}
+
+.main-content,
+.layout-content,
+.app-content {
+  padding: 14px;
+}
+
+.topbar,
+.header,
+.app-header,
+.dashboard-topbar {
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.topbar h1,
+.topbar h2,
+.header h1,
+.header h2,
+.app-header h1,
+.app-header h2,
+.dashboard-topbar h1,
+.dashboard-topbar h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 22px;
+  line-height: 1.15;
+  font-weight: 850;
+  letter-spacing: 0;
+}
+
+.topbar p,
+.header p,
+.app-header p,
+.dashboard-topbar p {
+  margin: 4px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.user-menu,
+.profile-menu,
+.account-menu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar,
+.user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  object-fit: cover;
+  background: #dbe4ff;
+}
+
+.content,
+.page-content,
+.dashboard-content {
+  min-height: calc(100vh - 86px);
+  border: 1px solid rgba(221, 229, 242, 0.9);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 22px 70px rgba(6, 13, 31, 0.16);
+  overflow: hidden;
+}
+
+@media (max-width: 920px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar,
+  .app-sidebar,
+  .dashboard-sidebar,
+  aside[class*="sidebar"] {
+    min-height: 0;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: block;
+    padding: 10px;
+  }
+
+  .sidebar nav,
+  .sidebar-nav,
+  .nav-menu,
+  .navigation {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 3px;
+  }
+
+  .sidebar a,
+  .sidebar button,
+  .sidebar-nav a,
+  .sidebar-nav button,
+  .nav-menu a,
+  .nav-menu button,
+  .navigation a,
+  .navigation button {
+    width: auto;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .main-content,
+  .layout-content,
+  .app-content {
+    padding: 10px;
+  }
+
+  .topbar,
+  .header,
+  .app-header,
+  .dashboard-topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

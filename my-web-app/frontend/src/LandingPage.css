@@ -1,0 +1,269 @@
+/* Marketing Landing Page */
+.landing {
+  color: #0f172a;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.landing-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+  border-bottom: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.3px;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero {
+  padding: 80px 28px 40px;
+  text-align: center;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.hero h1 {
+  font-size: 48px;
+  line-height: 1.15;
+  font-weight: 800;
+  margin: 0 0 18px;
+  letter-spacing: -0.5px;
+}
+
+.hero p {
+  color: #475569;
+  font-size: 18px;
+  line-height: 1.6;
+  margin: 0 auto 28px;
+  max-width: 720px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.features {
+  padding: 70px 28px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.features h2 {
+  text-align: center;
+  font-size: 28px;
+  margin: 0 0 28px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.feature-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 22px;
+  background: white;
+}
+
+.feature-icon {
+  font-size: 26px;
+}
+
+.feature-card h3 {
+  margin: 10px 0 8px;
+  font-size: 17px;
+}
+
+.feature-card p {
+  margin: 0;
+  color: #475569;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.cta-section {
+  text-align: center;
+  padding: 70px 28px;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-top: 1px solid #e5e7eb;
+}
+
+.cta-section h2 {
+  font-size: 28px;
+  margin: 0 0 10px;
+}
+
+.cta-section p {
+  color: #475569;
+  margin: 0 0 22px;
+}
+
+.pricing-section {
+  padding: 70px 28px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.pricing-section h2 {
+  text-align: center;
+  font-size: 28px;
+  margin: 0 0 6px;
+}
+
+.pricing-subtitle {
+  text-align: center;
+  color: #475569;
+  margin: 0 0 28px;
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.pricing-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 22px;
+  background: white;
+  position: relative;
+}
+
+.pricing-card.highlighted {
+  border-color: #0f172a;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
+}
+
+.popular-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pricing-card h3 {
+  margin: 0 0 10px;
+  font-size: 17px;
+}
+
+.price {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.amount {
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.period {
+  color: #475569;
+  font-size: 14px;
+}
+
+.plan-description {
+  margin: 0 0 14px;
+  color: #475569;
+  font-size: 14px;
+}
+
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  color: #334155;
+}
+
+.landing-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
+  border-top: 1px solid #e5e7eb;
+  color: #475569;
+  font-size: 14px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  color: white;
+  border-color: #6C63FF;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(108, 99, 255, 0.22);
+}
+
+.btn-secondary {
+  background: white;
+  color: #0f172a;
+  border-color: #e5e7eb;
+}
+
+.btn-secondary:hover {
+  background: #f8fafc;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #0f172a;
+}
+
+.btn-ghost:hover {
+  background: #f1f5f9;
+}
+
+.btn-large {
+  padding: 14px 22px;
+  font-size: 16px;
+  border-radius: 12px;
+}

@@ -1,0 +1,5 @@
+0000000000000000000000000000000000000000 910fd19b7166a36e7acf9644389fa5bd23d9d5ef takougangfabrice <takougangfabrice83@gmail.com> 1774978111 +0200	commit (initial): Initial commit: Website Builder project with Django backend and React frontend
+910fd19b7166a36e7acf9644389fa5bd23d9d5ef dd99b6f4277268663c842cca9702eeab50ad1415 takougangfabrice <takougangfabrice83@gmail.com> 1775056090 +0200	commit: Add authentication, billing, and payment features
+dd99b6f4277268663c842cca9702eeab50ad1415 e6c52f820ea2f9024d06d19fb633ad783433a0df takougangfabrice <takougangfabrice83@gmail.com> 1775755264 +0200	commit: Enhance template gallery with professional mockups, images, and category-specific content
+e6c52f820ea2f9024d06d19fb633ad783433a0df e6c52f820ea2f9024d06d19fb633ad783433a0df takougangfabrice <takougangfabrice83@gmail.com> 1776273370 +0200	reset: moving to HEAD
+e6c52f820ea2f9024d06d19fb633ad783433a0df df3f5cf99f0a9c6bd5625413400ac30b33d08ad4 takougangfabrice <takougangfabrice83@gmail.com> 1776273394 +0200	commit: Add authentication features, billing, templates, and website builder enhancements

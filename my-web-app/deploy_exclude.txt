@@ -1,0 +1,79 @@
+# Deployment exclude patterns
+# These files/folders will NOT be included in the deployment package
+
+# Virtual environment
+backend\venv\
+backend\ENV\
+backend\env\
+
+# Node modules
+frontend\node_modules\
+
+# Build artifacts (local builds)
+frontend\build\
+backend\staticfiles\
+backend\staticfiles_build\
+
+# Database
+backend\db.sqlite3
+backend\db.sqlite3-journal
+
+# Python cache
+backend\__pycache__\
+**\__pycache__\
+*.pyc
+*.pyo
+*.pyd
+
+# IDE
+.vscode\
+.idea\
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+backend\logs\
+
+# Media uploads (user content - backup separately)
+backend\media\
+
+# Environment variables (security!)
+.env
+*.env.local
+*.env.production
+
+# Git
+.git\
+.gitignore
+.gitmodules
+
+# Test/coverage
+htmlcov\
+.coverage
+.pytest_cache\
+
+# Temporary
+tmp\
+temp\
+*.tmp
+*.temp
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.p12
+
+# Backup files
+*.bak
+*.backup
+
+# Others
+.DS_Store
+*.sublime-project
+*.sublime-workspace

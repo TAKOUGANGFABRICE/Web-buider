@@ -1,0 +1,77 @@
+# Environment variables
+.env
+*.env.local
+*.env.production
+
+# Node modules
+node_modules/
+frontend/node_modules/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+frontend/build/
+backend/staticfiles/
+backend/staticfiles_build/
+
+# User uploaded media (should be backed up separately)
+backend/media/
+
+# Secrets and keys
+*.pem
+*.key
+*.crt
+*.p12
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Backup files
+*.bak
+*.backup
+
+# Coverage reports
+htmlcov/
+.coverage
+*.cover
+
+# Dependency lock files (optional - uncomment if using alternative lock files)
+# package-lock.json
+# yarn.lock
+# Pipfile.lock
+# poetry.lock

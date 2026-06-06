@@ -1,0 +1,92 @@
+.payment-history-page, .invoices-page {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #F8FAFC;
+  min-height: 100vh;
+}
+
+.billing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.btn-back {
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-right: 16px;
+}
+
+.billing-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.payments-table, .invoices-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.payments-table th, .invoices-table th {
+  background: #F1F5F9;
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #334155;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.payments-table td, .invoices-table td {
+  padding: 12px 16px;
+  border-top: 1px solid #E2E8F0;
+  color: #111827;
+}
+
+.payment-status-badge, .invoice-status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  text-transform: capitalize;
+}
+
+.payment-actions, .invoice-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-view, .btn-download, .btn-print {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-view {
+  background: #EFF6FF;
+  color: #1D4ED8;
+}
+
+.btn-download {
+  background: #D1FAE5;
+  color: #065F46;
+}
+
+.btn-print {
+  background: #FEF3C7;
+  color: #92400E;
+}

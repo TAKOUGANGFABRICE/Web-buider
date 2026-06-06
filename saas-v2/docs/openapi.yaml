@@ -1,0 +1,501 @@
+openapi: 3.0.3
+info:
+  title: SiteForge API
+  version: 1.0.0
+  description: Website Builder SaaS API
+
+servers:
+  - url: http://localhost:8000/api/v1
+
+paths:
+  /auth/register:
+    post:
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Validation error
+
+  /auth/login:
+    post:
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string, format: email }
+                password: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Invalid credentials
+
+  /auth/refresh:
+    post:
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+
+  /auth/forgot-password:
+    post:
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+      responses:
+        '200':
+          description: OK
+
+  /auth/reset-password:
+    post:
+      tags: [auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          description: OK
+
+  /users/me:
+    get:
+      tags: [users]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /websites:
+    get:
+      tags: [websites]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              type: array
+              items:
+                $ref: '#/components/schemas/WebsiteResponse'
+    post:
+      tags: [websites]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebsiteCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebsiteResponse'
+
+  /websites/{website_id}:
+    get:
+      tags: [websites]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: website_id
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebsiteResponse'
+    patch:
+      tags: [websites]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: website_id
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebsiteUpdate'
+      responses:
+        '200':
+          description: OK
+    delete:
+      tags: [websites]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: website_id
+          schema: { type: string, format: uuid }
+      responses:
+        '204':
+          description: No content
+
+  /websites/{website_id}/duplicate:
+    post:
+      tags: [websites]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: website_id
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebsiteDuplicateRequest'
+      responses:
+        '201':
+          description: Created
+
+  /templates:
+    get:
+      tags: [templates]
+      parameters:
+        - in: query
+          name: category
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              type: array
+              items:
+                $ref: '#/components/schemas/TemplateResponse'
+
+  /templates/{template_id}:
+    get:
+      tags: [templates]
+      parameters:
+        - in: path
+          name: template_id
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: OK
+
+  /pages/websites/{website_id}/pages:
+    get:
+      tags: [pages]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: website_id
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: OK
+    post:
+      tags: [pages]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: website_id
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageCreate'
+      responses:
+        '201':
+          description: Created
+
+  /pages/websites/{website_id}/pages/{page_id}/duplicate:
+    post:
+      tags: [pages]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: website_id
+          schema: { type: string, format: uuid }
+        - in: path
+          name: page_id
+          schema: { type: string, format: uuid }
+      responses:
+        '201':
+          description: Created
+
+  /media/websites/{website_id}/media:
+    get:
+      tags: [media]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: website_id
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: OK
+    post:
+      tags: [media]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: website_id
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Created
+
+  /analytics/overview:
+    get:
+      tags: [analytics]
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: days
+          schema: { type: integer, default: 30, minimum: 1, maximum: 365 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsOverviewResponse'
+
+  /billing/subscription:
+    get:
+      tags: [billing]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionResponse'
+
+components:
+  schemas:
+    UserCreate:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8 }
+        full_name: { type: string }
+
+    UserResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        full_name: { type: string }
+        is_verified: { type: boolean }
+        is_active: { type: boolean }
+        created_at: { type: string, format: date-time }
+
+    TokenResponse:
+      type: object
+      properties:
+        access_token: { type: string }
+        refresh_token: { type: string }
+        token_type: { type: string }
+        user: { $ref: '#/components/schemas/UserResponse' }
+
+    ForgotPasswordRequest:
+      type: object
+      required: [email]
+      properties:
+        email: { type: string, format: email }
+
+    ResetPasswordRequest:
+      type: object
+      required: [token, new_password]
+      properties:
+        token: { type: string }
+        new_password: { type: string, minLength: 8 }
+
+    MessageResponse:
+      type: object
+      properties:
+        message: { type: string }
+
+    WebsiteCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        slug: { type: string }
+        subdomain: { type: string }
+        custom_domain: { type: string }
+        template_id: { type: string, format: uuid }
+        seo_title: { type: string }
+        seo_description: { type: string }
+
+    WebsiteUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        subdomain: { type: string }
+        custom_domain: { type: string }
+        is_published: { type: boolean }
+        seo_title: { type: string }
+        seo_description: { type: string }
+
+    WebsiteDuplicateRequest:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        slug: { type: string }
+
+    WebsiteResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        slug: { type: string }
+        subdomain: { type: string }
+        custom_domain: { type: string }
+        is_published: { type: boolean }
+        template_id: { type: string, format: uuid }
+        seo_title: { type: string }
+        seo_description: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    PageCreate:
+      type: object
+      required: [name, slug]
+      properties:
+        name: { type: string }
+        slug: { type: string }
+        title: { type: string }
+        is_homepage: { type: boolean }
+        sort_order: { type: integer }
+
+    PageResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        website_id: { type: string, format: uuid }
+        name: { type: string }
+        slug: { type: string }
+        title: { type: string }
+        is_homepage: { type: boolean }
+        sort_order: { type: integer }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    TemplateResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        category: { type: string }
+        preview_image_url: { type: string }
+        thumbnail_url: { type: string }
+        is_premium: { type: boolean }
+        is_active: { type: boolean }
+        created_at: { type: string, format: date-time }
+
+    AnalyticsOverviewResponse:
+      type: object
+      properties:
+        visitors_today: { type: integer }
+        visitors_yesterday: { type: integer }
+        visitors_week: { type: integer }
+        visitors_month: { type: integer }
+        visitors_change_today: { type: number }
+        visitors_change_week: { type: number }
+        visitors_change_month: { type: number }
+        conversion_rate: { type: number }
+        sales_today: { type: number }
+        sales_week: { type: number }
+        sales_month: { type: number }
+        sales_change_today: { type: number }
+        sales_change_week: { type: number }
+        sales_change_month: { type: number }
+
+    SubscriptionResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        plan: { type: string }
+        status: { type: string }
+        stripe_customer_id: { type: string }
+        current_period_start: { type: string, format: date-time }
+        current_period_end: { type: string, format: date-time }
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

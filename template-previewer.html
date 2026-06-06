@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SiteForge — Template Preview Tool</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #111827;
+      --panel-2: #0f172a;
+      --border: #1f2b3d;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #6366f1;
+      --accent-2: #22c55e;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+    header {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(15,23,42,0.85);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 24px;
+    }
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .brand { font-weight: 800; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 8px; }
+    .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: #0b1220; border: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+    main { padding: 24px; max-width: 1200px; margin: 0 auto; }
+    h1 { font-size: 26px; margin: 0 0 6px; }
+    p.lead { margin: 0 0 22px; color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 18px 40px rgba(0,0,0,0.25); }
+    .thumb { aspect-ratio: 16/10; display: flex; align-items: center; justify-content: center; color: #ffffffaa; font-weight: 700; font-size: 15px; }
+    .meta { padding: 14px 14px 10px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .meta h3 { margin: 0; font-size: 17px; }
+    .meta p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .actions { padding: 0 14px 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+    button {
+      border: 1px solid transparent;
+      background: #ffffff12;
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    button:hover { background: #ffffff1f; }
+    button.primary { background: var(--accent); color: white; }
+    button.primary:hover { background: #4f52d6; }
+    button.ghost { background: transparent; border-color: var(--border); color: var(--muted); }
+    .badge { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; border: 1px solid var(--border); color: var(--muted); width: fit-content; }
+    .badge.premium { background: #fbbf2420; color: #fbbf24; border-color: #fbbf2460; }
+    .modal-bg {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: none; align-items: center; justify-content: center;
+      z-index: 100; padding: 24px;
+    }
+    .modal-bg.open { display: flex; }
+    .modal {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      max-width: 880px;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.45);
+    }
+    .preview {
+      aspect-ratio: 16/9;
+      display: flex; align-items: center; justify-content: center;
+      color: #ffffffaa; font-weight: 700; font-size: 16px;
+    }
+    .panel { padding: 20px; }
+    .panel h2 { margin: 0 0 8px; font-size: 22px; }
+    .panel p { margin: 0; color: var(--muted); line-height: 1.55; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .search { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); padding: 10px 12px; border-radius: 12px; width: 100%; margin-bottom: 14px; outline: none; }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .chip { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; }
+    .chip.active { background: var(--accent); color: white; border-color: transparent; }
+    .empty { grid-column: 1/-1; text-align: center; padding: 30px; color: var(--muted); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="row">
+      <div class="brand">🚀 SiteForge Previewer</div>
+      <div class="pill">Template Preview Tool</div>
+    </div>
+  </header>
+  <main>
+    <h1>Template Previewer</h1>
+    <p class="lead">Browse templates, preview them in high fidelity, and edit the selected design in the builder.</p>
+
+    <input id="search" class="search" placeholder="Search templates..." />
+    <div id="chips" class="chips"></div>
+    <div id="grid" class="grid"></div>
+  </main>
+
+  <div id="modal" class="modal-bg">
+    <div class="modal">
+      <div id="preview" class="preview"></div>
+      <div class="panel">
+        <h2 id="title"></h2>
+        <p id="desc"></p>
+        <div class="toolbar">
+          <button class="primary" data-action="edit">Edit in Builder</button>
+          <button class="ghost" data-action="close">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const CATEGORY_COLORS = {
+      business: '#1e293b',
+      portfolio: '#7c3aed',
+      ecommerce: '#db2777',
+      blog: '#0d9488',
+      landing: '#ea580c'
+    };
+
+    const TEMPLATES = [
+      { id: 'biz-1', name: 'Corporate', category: 'business', description: 'Professional business template', longDescription: 'Clean header-to-footer corporate layout with service blocks and testimonials.' },
+      { id: 'biz-2', name: 'Consulting', category: 'business', description: 'Consulting firm layout', longDescription: 'Case-study layout with advisor cards and contact booking sections.' },
+      { id: 'biz-3', name: 'Agency', category: 'business', description: 'Creative agency template', longDescription: 'Bold hero, process timeline, and campaign showcase blocks.' },
+      { id: 'port-1', name: 'Minimal', category: 'portfolio', description: 'Clean portfolio showcase', longDescription: 'Single-column story format with large imagery and captions.' },
+      { id: 'port-2', name: 'Grid', category: 'portfolio', description: 'Masonry grid portfolio', longDescription: 'Responsive image grid with filtering and lightbox-ready cells.' },
+      { id: 'port-3', name: 'Creative', category: 'portfolio', description: 'Artistic portfolio design', longDescription: 'Experimental typography, overlapping imagery, and motion cues.' },
+      { id: 'ecom-1', name: 'Shop', category: 'ecommerce', description: 'Online store template', longDescription: 'Product cards, quick-view, cart drawer, and checkout sections.' },
+      { id: 'ecom-2', name: 'Marketplace', category: 'ecommerce', description: 'Multi-vendor marketplace', longDescription: 'Vendor profile, ratings, filters, and product comparison blocks.' },
+      { id: 'ecom-3', name: 'Boutique', category: 'ecommerce', description: 'Luxury brand shop', longDescription: 'Editorial product presentation with refined typography.' },
+      { id: 'blog-1', name: 'Minimal', category: 'blog', description: 'Clean blog layout', longDescription: 'Typographic blog layout with readable line length and shareable cards.' },
+      { id: 'blog-2', name: 'Magazine', category: 'blog', description: 'Magazine-style blog', longDescription: 'Hero stories, sidebar widgets, and featured article modules.' },
+      { id: 'blog-3', name: 'News', category: 'blog', description: 'News portal design', longDescription: 'SEO structure with article cards, topic feeds, and ad blocks.' },
+      { id: 'land-1', name: 'Startup', category: 'landing', description: 'Product launch page', longDescription: 'Hero with social proof, feature list, pricing, and FAQ.' },
+      { id: 'land-2', name: 'SaaS', category: 'landing', description: 'Software landing page', longDescription: 'Integration logos, comparison table, docs preview, and CTA blocks.' },
+      { id: 'land-3', name: 'Event', category: 'landing', description: 'Event promotion template', longDescription: 'Countdown, speaker cards, agenda, and RSVP form sections.' }
+    ];
+
+    const CATEGORIES = [
+      { id: 'all', label: 'All' },
+      { id: 'business', label: 'Business' },
+      { id: 'portfolio', label: 'Portfolio' },
+      { id: 'ecommerce', label: 'E-commerce' },
+      { id: 'blog', label: 'Blog' },
+      { id: 'landing', label: 'Landing' }
+    ];
+
+    const favorites = [];
+    let activeCategory = 'all';
+    let activeTemplate = null;
+
+    const state = {
+      get filtered() {
+        const q = document.getElementById('search').value.trim().toLowerCase();
+        return TEMPLATES.filter(t => {
+          const matchCategory = activeCategory === 'all' || t.category === activeCategory;
+          const matchSearch = !q || t.name.toLowerCase().includes(q) || t.description.toLowerCase().includes(q);
+          return matchCategory && matchSearch;
+        });
+      }
+    };
+
+    function previewImage(template) {
+      const bg = (CATEGORY_COLORS[template.category] || '#334155').replace('#', '');
+      const text = encodeURIComponent(template.name);
+      return `https://placehold.co/600x420/${bg}/ffffff?text=${text}`;
+    }
+
+    function renderChips() {
+      const el = document.getElementById('chips');
+      el.innerHTML = CATEGORIES.map(c => `<button class="chip ${activeCategory === c.id ? 'active' : ''}" data-cat="${c.id}">${c.label}</button>`).join('');
+      el.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+        activeCategory = btn.dataset.cat;
+        renderChips();
+        renderGrid();
+      }));
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('grid');
+      const items = state.filtered;
+      if (!items.length) {
+        grid.innerHTML = '<div class="empty">No templates match your search or filter.</div>';
+        return;
+      }
+      grid.innerHTML = items.map(t => {
+        const img = previewImage(t);
+        const star = favorites.includes(t.id) ? '★' : '☆';
+        return `
+          <div class="card" data-id="${t.id}">
+            <div class="thumb" style="background: linear-gradient(180deg, ${(CATEGORY_COLORS[t.category] || '#334155')}22, transparent 90%), url('${img}') center/cover no-repeat;">
+              <span style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.45);border:1px solid #ffffff22;backdrop-filter:blur(6px);padding:6px 10px;border-radius:999px;color:#fff;font-size:12px;cursor:pointer;" data-action="fav">${star}</span>
+            </div>
+            <div class="meta">
+              <h3>${t.name}</h3>
+              <p>${t.description}</p>
+              <span class="badge">${t.category}</span>
+            </div>
+            <div class="actions">
+              <button class="primary" data-action="preview">Preview</button>
+              <button data-action="edit">Edit</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      grid.querySelectorAll('[data-action="preview"]').forEach(btn => btn.addEventListener('click', e => {
+        e.stopPropagation();
+        openPreview(btn.closest('.card').dataset.id);
+      }));
+      grid.querySelectorAll('[data-action="edit"]').forEach(btn => btn.addEventListener('click', e => {
+        e.stopPropagation();
+        editTemplate(btn.closest('.card').dataset.id);
+      }));
+      grid.querySelectorAll('[data-action="fav"]').forEach(btn => btn.addEventListener('click', e => {
+        e.stopPropagation();
+        toggleFavorite(btn.closest('.card').dataset.id, btn);
+      }));
+      grid.querySelectorAll('.card').forEach(card => card.addEventListener('click', () => openPreview(card.dataset.id)));
+    }
+
+    function openPreview(id) {
+      const t = TEMPLATES.find(x => x.id === id);
+      if (!t) return;
+      activeTemplate = t;
+      document.getElementById('title').textContent = t.name;
+      document.getElementById('desc').textContent = t.longDescription || t.description;
+      const prev = document.getElementById('preview');
+      prev.style.background = `linear-gradient(180deg, ${(CATEGORY_COLORS[t.category] || '#334155')}30, transparent 80%), url('${previewImage(t)}') center/cover no-repeat`;
+      document.getElementById('modal').classList.add('open');
+    }
+
+    function closePreview() {
+      document.getElementById('modal').classList.remove('open');
+      activeTemplate = null;
+    }
+
+    function editTemplate(id) {
+      const t = TEMPLATES.find(x => x.id === id);
+      if (!t) return;
+      alert(`Opening builder for template: ${t.name}\n(Connect this to your builder by routing to /builder?template=${t.id})`);
+    }
+
+    function toggleFavorite(id, btn) {
+      const idx = favorites.indexOf(id);
+      if (idx >= 0) favorites.splice(idx, 1);
+      else favorites.push(id);
+      btn.textContent = favorites.includes(id) ? '★' : '☆';
+    }
+
+    document.getElementById('modal').addEventListener('click', e => {
+      if (e.target.id === 'modal') closePreview();
+    });
+    document.querySelectorAll('[data-action="close"]').forEach(b => b.addEventListener('click', closePreview));
+    document.querySelectorAll('[data-action="edit"]').forEach(b => b.addEventListener('click', () => {
+      if (activeTemplate) editTemplate(activeTemplate.id);
+    }));
+    document.getElementById('search').addEventListener('input', renderGrid);
+
+    renderChips();
+    renderGrid();
+  </script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+"""
+WSGI config for Website Builder project on cPanel/Passenger.
+
+This file should be placed in public_html/ directory on your cPanel server.
+It serves as the entry point for Phusion Passenger to run the Django app.
+
+Instructions:
+1. Upload this file to: /home/USERNAME/public_html/passenger_wsgi.py
+2. Update paths to match your actual username and project structure
+3. Ensure virtual environment is created and dependencies installed
+"""
+
+import sys
+import os
+
+# --------------------------------------------------------------------------
+# CONFIGURATION - Update these values for your setup
+# --------------------------------------------------------------------------
+USERNAME = "YOUR_CPANEL_USERNAME"  # Replace with your cPanel username
+PROJECT_NAME = "backend"  # Django project folder name
+SETTINGS_MODULE = "backend.settings_production"  # Use production settings
+
+# --------------------------------------------------------------------------
+# Paths
+# --------------------------------------------------------------------------
+PROJECT_DIR = f"/home/{USERNAME}/websitebuilder/{PROJECT_NAME}"
+VENV_DIR = f"/home/{USERNAME}/websitebuilder/backend/venv"
+
+# Add project directory to Python path
+if PROJECT_DIR not in sys.path:
+    sys.path.insert(0, PROJECT_DIR)
+
+# Set Django settings module
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", SETTINGS_MODULE)
+
+# Activate virtual environment
+activate_script = os.path.join(VENV_DIR, "bin", "activate_this.py")
+if os.path.exists(activate_script):
+    with open(activate_script) as f:
+        exec(f.read(), {"__file__": activate_script})
+else:
+    sys.stderr.write(f"WARNING: Virtual environment not found at {VENV_DIR}\n")
+    sys.stderr.write("Make sure to run: python3 -m venv venv\n")
+    sys.stderr.write("And install dependencies: pip install -r requirements.txt\n")
+
+# --------------------------------------------------------------------------
+# WSGI Application
+# --------------------------------------------------------------------------
+try:
+    from django.core.wsgi import get_wsgi_application
+    application = get_wsgi_application()
+except Exception as e:
+    import traceback
+    sys.stderr.write(f"ERROR loading Django WSGI application: {e}\n")
+    sys.stderr.write(traceback.format_exc())
+    raise
+
+# --------------------------------------------------------------------------
+# Optional: Add custom middleware or WSGI configuration here
+# --------------------------------------------------------------------------
+# Example: Add custom headers
+# def application(environ, start_response):
+#     def custom_start_response(status, headers, exc_info=None):
+#         headers.append(('X-Powered-By', 'Django/Passenger'))
+#         return start_response(status, headers, exc_info)
+#     return original_application(environ, custom_start_response)
+
+print(f"✓ Passenger WSGI loaded successfully for {PROJECT_NAME}", file=sys.stderr)

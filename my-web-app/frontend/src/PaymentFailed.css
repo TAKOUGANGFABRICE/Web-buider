@@ -1,0 +1,52 @@
+.failed-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #64748B;
+}
+
+.failed-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.failed-modal h2 {
+  margin: 0 0 24px;
+  color: #111827;
+}
+
+.failed-reason {
+  padding: 16px;
+  background: #FFEDD5;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  color: #9A3412;
+}
+
+.failed-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}

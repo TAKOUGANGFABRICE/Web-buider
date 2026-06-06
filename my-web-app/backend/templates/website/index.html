@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<!-- 
+  ==========================================================================
+  INDEX.HTML - Main Homepage for cPanel Deployment
+  ==========================================================================
+  This is the main HTML file for the static website.
+  It contains all the content and structure of the homepage.
+  
+  Structure:
+  - Header with navigation
+  - Hero section with welcome message
+  - Services section
+  - Stats section
+  - Contact section with form
+  - Footer with links
+  ==========================================================================
+-->
+<html lang="en">
+<!-- 
+  The 'lang' attribute specifies the language of the page content.
+  This is important for search engines and screen readers.
+-->
+<head>
+    <!-- 
+      META CHARSET: Defines the character encoding used in the document.
+      UTF-8 supports all characters including emojis and special symbols.
+    -->
+    <meta charset="UTF-8">
+    
+    <!-- 
+      META VIEWPORT: Makes the website responsive on mobile devices.
+      - width=device-width: Sets the width to match the device screen width
+      - initial-scale=1.0: Sets the initial zoom level to 100%
+    -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 
+      META DESCRIPTION: Provides a brief description of the website for search engines.
+      This appears in search results below the page title.
+    -->
+    <meta name="description" content="Professional website built with WaaS - Website as a Service">
+    
+    <!-- 
+      TITLE: The text that appears in the browser tab and in search results.
+    -->
+    <title>My Website - Home</title>
+    
+    <!-- 
+      LINK STYLESHEET: Links to the external CSS file for styling.
+      - rel="stylesheet" indicates this is a stylesheet
+      - href points to the CSS file location (static/css/style.css)
+    -->
+    <link rel="stylesheet" href="static/css/style.css">
+    
+    <!-- 
+      LINK FAVICON: Sets the small icon in the browser tab.
+      - Using data URI to embed an SVG diamond emoji directly
+      - This avoids needing an external image file
+    -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>">
+</head>
+
+<!-- 
+  ==========================================================================
+  BODY SECTION: All visible content goes here
+  ==========================================================================
+-->
+<body>
+    <!-- 
+      ==========================================================================
+      HEADER: Fixed navigation bar at the top of the page
+      ==========================================================================
+      - class="site-header": Container for the header styling
+      - position: fixed keeps it visible while scrolling
+    -->
+    <header class="site-header">
+        <!-- 
+          NAV: Navigation element
+          - class="navbar": Container for navigation styling
+        -->
+        <nav class="navbar">
+            <!-- 
+              NAV-CONTAINER: Limits width and centers the navigation
+              - max-width: 1200px = maximum width of the content
+              - margin: 0 auto centers it horizontally
+            -->
+            <div class="nav-container">
+                <!-- 
+                  LOGO: Brand name that links to homepage
+                  - href="./" = links to current directory (index.html)
+                  - class="logo": Style for the brand name
+                  - 💎 = diamond emoji as the logo icon
+                -->
+                <a href="./" class="logo">💎 WaaS</a>
+                
+                <!-- 
+                  NAV-MENU: List of navigation links
+                  - class="nav-menu": Container for navigation items
+                  - Used for responsive mobile menu toggle
+                -->
+                <ul class="nav-menu">
+                    <!-- 
+                      NAVIGATION ITEMS: Links to different sections/pages
+                      - Home (current page, marked as active)
+                      - About (goes to about.html page)
+                      - Services (goes to #services section on current page)
+                      - Contact (goes to #contact section on current page)
+                    -->
+                    <li><a href="./" class="nav-link active">Home</a></li>
+                    <li><a href="about.html" class="nav-link">About</a></li>
+                    <li><a href="#services" class="nav-link">Services</a></li>
+                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+                
+                <!-- 
+                  NAV-TOGGLE: Mobile hamburger menu button
+                  - onclick="toggleMenu()" calls JavaScript function
+                  - Contains 3 spans for the 3 lines of hamburger icon
+                -->
+                <button class="nav-toggle" onclick="toggleMenu()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 
+      ==========================================================================
+      MAIN CONTENT: The primary content of the page
+      ==========================================================================
+    -->
+    <main>
+        <!-- 
+          ==========================================================================
+          HERO SECTION: The first thing visitors see
+          ==========================================================================
+          - class="hero-section": Full-height welcome area
+          - Uses gradient background defined in CSS
+        -->
+        <section class="hero-section">
+            <!-- 
+              HERO-CONTENT: Left side text content
+              - max-width: 600px limits the text width for readability
+            -->
+            <div class="hero-content">
+                <!-- 
+                  H1: Main headline - most important heading
+                  - Should only be used once per page for SEO
+                -->
+                <h1>Welcome to Our Website</h1>
+                
+                <!-- 
+                  HERO-SUBTITLE: Subheading to complement the main headline
+                -->
+                <p class="hero-subtitle">Building beautiful websites has never been easier</p>
+                
+                <!-- 
+                  HERO-DESCRIPTION: Longer description paragraph
+                  - Provides more detail about the business
+                -->
+                <p class="hero-description">
+                    We create stunning, professional websites that help your business stand out. 
+                    With modern design and powerful features, your online presence is guaranteed to impress.
+                </p>
+                
+                <!-- 
+                  HERO-BUTTONS: Call-to-action buttons
+                  - btn-primary: Main action button (filled color)
+                  - btn-outline: Secondary button (outlined style)
+                -->
+                <div class="hero-buttons">
+                    <a href="#contact" class="btn btn-primary">Get Started</a>
+                    <a href="about.html" class="btn btn-outline">Learn More</a>
+                </div>
+            </div>
+            
+            <!-- 
+              HERO-VISUAL: Right side floating cards
+              - These cards float/bob up and down with CSS animation
+            -->
+            <div class="hero-visual">
+                <div class="floating-card card-1">
+                    <span class="card-icon">🚀</span>
+                    <span class="card-text">Fast Performance</span>
+                </div>
+                <div class="floating-card card-2">
+                    <span class="card-icon">📱</span>
+                    <span class="card-text">Mobile Ready</span>
+                </div>
+                <div class="floating-card card-3">
+                    <span class="card-icon">🎨</span>
+                    <span class="card-text">Modern Design</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 
+          ==========================================================================
+          SERVICES SECTION: What the business offers
+          ==========================================================================
+          - id="services": Allows direct linking via URL "#services"
+          - class="features-section": Grid layout for services
+        -->
+        <section id="services" class="features-section">
+            <!-- Section heading -->
+            <h2>Our Services</h2>
+            <!-- Section subtitle -->
+            <p class="section-subtitle">What we offer to help your business grow</p>
+            
+            <!-- 
+              FEATURES-GRID: CSS Grid container for feature cards
+              - repeat(auto-fit, minmax(250px, 1fr)): Responsive grid that wraps
+            -->
+            <div class="features-grid">
+                <!-- 
+                  FEATURE-CARD: Individual service card
+                  - Contains icon, title, and description
+                -->
+                <div class="feature-card">
+                    <div class="feature-icon">💼</div>
+                    <h3>Business Solutions</h3>
+                    <p>Professional tools and solutions tailored for your business needs.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Marketing</h3>
+                    <p>Effective marketing strategies to grow your customer base.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Analytics</h3>
+                    <p>Detailed insights and reports to track your success.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔧</div>
+                    <h3>Support</h3>
+                    <p>24/7 dedicated support to help you whenever you need.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 
+          ==========================================================================
+          STATS SECTION: Numbers that build trust
+          ==========================================================================
+          - Uses different background color to separate sections
+        -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">500+</span>
+                    <span class="stat-label">Projects Completed</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">98%</span>
+                    <span class="stat-label">Client Satisfaction</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">24/7</span>
+                    <span class="stat-label">Support Available</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">10+</span>
+                    <span class="stat-label">Years Experience</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- 
+          ==========================================================================
+          CONTACT SECTION: How visitors can reach you
+          ==========================================================================
+          - id="contact": Allows direct linking
+          - Contains both contact info AND a contact form
+        -->
+        <section id="contact" class="contact-section">
+            <h2>Get In Touch</h2>
+            <p class="section-subtitle">Ready to start your project? Contact us today!</p>
+            
+            <!-- 
+              CONTACT-CONTENT: Two-column layout
+              - Left: Contact information
+              - Right: Contact form
+            -->
+            <div class="contact-content">
+                <!-- 
+                  CONTACT-INFO: Left column with contact details
+                -->
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <span class="contact-icon">📧</span>
+                        <div>
+                            <strong>Email</strong>
+                            <p>hello@website.com</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-icon">📞</span>
+                        <div>
+                            <strong>Phone</strong>
+                            <p>+1 (555) 123-4567</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-icon">📍</span>
+                        <div>
+                            <strong>Location</strong>
+                            <p>123 Business St, City, Country</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 
+                  CONTACT-FORM: Right column with form
+                  - onsubmit="submitForm(event)" calls JavaScript function
+                  - 'required' attribute makes fields mandatory
+                -->
+                <form class="contact-form" onsubmit="submitForm(event)">
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <!-- type="text" for any text input -->
+                        <input type="text" id="name" name="name" placeholder="Your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <!-- type="email" validates email format automatically -->
+                        <input type="email" id="email" name="email" placeholder="your@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <!-- textarea allows multi-line input -->
+                        <textarea id="message" name="message" rows="4" placeholder="Your message..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- 
+      ==========================================================================
+      FOOTER: Bottom section with copyright and links
+      ==========================================================================
+      - Always visible at the bottom of the page
+    -->
+    <footer class="site-footer">
+        <!-- 
+          FOOTER-CONTENT: Three-column layout for footer info
+        -->
+        <div class="footer-content">
+            <!-- Brand and tagline column -->
+            <div class="footer-brand">
+                <a href="./" class="logo">💎 WaaS</a>
+                <p>Building the future of web design.</p>
+            </div>
+            
+            <!-- Quick links column -->
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="./">Home</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            
+            <!-- Social links column -->
+            <div class="footer-social">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    <!-- aria-label improves accessibility for screen readers -->
+                    <a href="#" aria-label="Twitter">🐦</a>
+                    <a href="#" aria-label="Facebook">📘</a>
+                    <a href="#" aria-label="Instagram">📷</a>
+                    <a href="#" aria-label="LinkedIn">💼</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 
+          FOOTER-BOTTOM: Copyright line
+          - &copy; is the HTML entity for copyright symbol ©
+        -->
+        <div class="footer-bottom">
+            <p>&copy; 2026 My Website. All rights reserved. Powered by <a href="#">WaaS</a></p>
+        </div>
+    </footer>
+
+    <!-- 
+      ==========================================================================
+      JAVASCRIPT: Adds interactivity to the page
+      ==========================================================================
+      - Placed at the end for faster page loading
+      - Links to external main.js file
+    -->
+    <script src="static/js/main.js"></script>
+</body>
+</html>

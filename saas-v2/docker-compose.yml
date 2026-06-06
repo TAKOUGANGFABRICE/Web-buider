@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: siteforge
+      POSTGRES_PASSWORD: siteforge
+      POSTGRES_DB: siteforge
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: docker/backend.Dockerfile
+    environment:
+      DATABASE_URL: postgresql://siteforge:siteforge@db:5432/siteforge
+      SECRET_KEY: change-me-in-production
+      CORS_ORIGINS: http://localhost:5173,http://localhost:3000
+    volumes:
+      - ../backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: docker/frontend.Dockerfile
+    environment:
+      VITE_API_URL: http://localhost:8000/api/v1
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

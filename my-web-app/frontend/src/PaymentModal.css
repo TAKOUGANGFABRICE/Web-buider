@@ -1,0 +1,220 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.payment-modal, .success-modal, .failed-modal, .add-payment-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-close {
+  float: right;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #64748B;
+}
+
+.modal-steps {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+  gap: 24px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94A3B8;
+  font-size: 14px;
+}
+
+.step.active {
+  color: #6366F1;
+}
+
+.step-number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #E2E8F0;
+  color: #64748B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.step.active .step-number {
+  background: #6366F1;
+  color: white;
+}
+
+.modal-step-content h2 {
+  margin-top: 0;
+  color: #111827;
+}
+
+.plan-description {
+  color: #64748B;
+  margin-bottom: 16px;
+}
+
+.plan-summary {
+  background: #F8FAFC;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.payment-options h4 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #64748B;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.payment-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.payment-buttons button {
+  padding: 12px;
+  background: #F1F5F9;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.payment-buttons button.active {
+  background: #6366F1;
+  color: white;
+  border-color: #6366F1;
+}
+
+.payment-form {
+  margin-top: 16px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #E2E8F0;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.mt-4 {
+  margin-top: 24px;
+}
+
+.error-message {
+  padding: 12px;
+  background: #FEE2E2;
+  color: #991B1B;
+  border-radius: 6px;
+  margin: 16px 0;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+  justify-content: flex-end;
+}
+
+.success-icon, .failed-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+}
+
+.success-icon {
+  background: #DCFCE7;
+  color: #16A34A;
+}
+
+.failed-icon {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.success-details, .failed-details {
+  background: #F8FAFC;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.success-row, .failed-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.success-row:last-child, .failed-row:last-child {
+  border-bottom: none;
+}
+
+.success-actions, .failed-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-view {
+  background: #EFF6FF;
+  color: #1D4ED8;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}

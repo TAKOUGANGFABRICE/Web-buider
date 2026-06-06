@@ -1,0 +1,16 @@
+node_modules/
+*.log
+.DS_Store
+.vscode/
+.kilo/
+.playwright-mcp/
+__pycache__/
+*.pyc
+*.sqlite3
+.env
+.idea/
+*.tmp
+*.swp
+nul
+null
+node_modules
