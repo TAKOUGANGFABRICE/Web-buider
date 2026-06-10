@@ -36,46 +36,46 @@ const TEMPLATE_PREVIEW_MAP = {
   'land-6': 'conference',
 };
 
-  const CATEGORY_COLORS = {
-    business: '#1e293b',
-    portfolio: '#7c3aed',
-    ecommerce: '#db2777',
-    blog: '#0d9488',
-    landing: '#ea580c',
-  };
+const CATEGORY_COLORS = {
+  business: '#1e293b',
+  portfolio: '#7c3aed',
+  ecommerce: '#db2777',
+  blog: '#0d9488',
+  landing: '#ea580c',
+};
 
-  const HERO_IMAGES = {
-    'biz-1': 'https://images.unsplash.com/photo-1497366216548-37526070297c',
-    'biz-2': 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf',
-    'biz-3': 'https://images.unsplash.com/photo-1559136555-9303baea8ebd',
-    'biz-4': 'https://images.unsplash.com/photo-1553877522-43269d4ea984',
-    'biz-5': 'https://images.unsplash.com/photo-1563986768609-322da13575f2',
-    'biz-6': 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab',
-    'port-1': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
-    'port-2': 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634',
-    'port-3': 'https://images.unsplash.com/photo-1542744040-25c4d430006a',
-    'port-4': 'https://images.unsplash.com/photo-1557683316-973673baf926',
-    'port-5': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f',
-    'port-6': 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d',
-    'ecom-1': 'https://images.unsplash.com/photo-1441986300917-64674bd600d8',
-    'ecom-2': 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d',
-    'ecom-3': 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04',
-    'ecom-4': 'https://images.unsplash.com/photo-1445205170230-053b83016050',
-    'ecom-5': 'https://images.unsplash.com/photo-1518770660439-4636190af475',
-    'ecom-6': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836',
-    'blog-1': 'https://images.unsplash.com/photo-1499750310107-5fef28a66643',
-    'blog-2': 'https://images.unsplash.com/photo-1504711434969-e33886168d6c',
-    'blog-3': 'https://images.unsplash.com/photo-1504711434969-e33886168d6c',
-    'blog-4': 'https://images.unsplash.com/photo-1517842645767-c639042777db',
-    'blog-5': 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3',
-    'blog-6': 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8',
-    'land-1': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f',
-    'land-2': 'https://images.unsplash.com/photo-1551434678-e076c223a692',
-    'land-3': 'https://images.unsplash.com/photo-1505236858219-8359eb29e329',
-    'land-4': 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c',
-    'land-5': 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7',
-    'land-6': 'https://images.unsplash.com/photo-1540575467063-178a50c2df87',
-  };
+const HERO_IMAGES = {
+  'biz-1': 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=80',
+  'biz-2': 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&q=80',
+  'biz-3': 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=1200&q=80',
+  'biz-4': 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1200&q=80',
+  'biz-5': 'https://images.unsplash.com/photo-1563986768609-322da13575f2?w=1200&q=80',
+  'biz-6': 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80',
+  'port-1': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80',
+  'port-2': 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=1200&q=80',
+  'port-3': 'https://images.unsplash.com/photo-1542744040-25c4d430006a?w=1200&q=80',
+  'port-4': 'https://images.unsplash.com/photo-1557683316-973673baf926?w=1200&q=80',
+  'port-5': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80',
+  'port-6': 'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?w=1200&q=80',
+  'ecom-1': 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1200&q=80',
+  'ecom-2': 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&q=80',
+  'ecom-3': 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1200&q=80',
+  'ecom-4': 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=1200&q=80',
+  'ecom-5': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80',
+  'ecom-6': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200&q=80',
+  'blog-1': 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&q=80',
+  'blog-2': 'https://images.unsplash.com/photo-1504711434969-e33886168d6c?w=1200&q=80',
+  'blog-3': 'https://images.unsplash.com/photo-1504711434969-e33886168d6c?w=1200&q=80',
+  'blog-4': 'https://images.unsplash.com/photo-1517842645767-c639042777db?w=1200&q=80',
+  'blog-5': 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&q=80',
+  'blog-6': 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=1200&q=80',
+  'land-1': 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80',
+  'land-2': 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=1200&q=80',
+  'land-3': 'https://images.unsplash.com/photo-1505236858219-8359eb29e329?w=1200&q=80',
+  'land-4': 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=1200&q=80',
+  'land-5': 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1200&q=80',
+  'land-6': 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&q=80',
+};
 
 const TEMPLATES = {
   business: [
@@ -145,22 +145,69 @@ function TemplateGallery() {
     navigate(`/builder?template=${template.id}`);
   };
 
+  const categoryHeroImages = {
+    business: HERO_IMAGES['biz-1'],
+    portfolio: HERO_IMAGES['port-2'],
+    ecommerce: HERO_IMAGES['ecom-1'],
+    blog: HERO_IMAGES['blog-1'],
+    landing: HERO_IMAGES['land-1'],
+  };
+
+  const categoryDescriptions = {
+    business: 'Professional business templates for corporate websites, startups, and consulting firms',
+    portfolio: 'Showcase your work with creative portfolio templates for designers and developers',
+    ecommerce: 'Build online stores with our e-commerce templates designed for sales conversion',
+    blog: 'Share your thoughts with beautifully designed blog templates for every niche',
+    landing: 'High-converting landing pages for product launches and marketing campaigns',
+  };
+
   return (
     <div className="gallery-page">
-      <header className="gallery-header">
-        <div className="gallery-header-text">
+      <section className="category-hero">
+        <div className="hero-banner">
+          <img src={categoryHeroImages[activeCategory]} alt={`${activeCategory} templates`} className="hero-banner-image" onError={(e) => {
+            e.target.src = `https://placehold.co/1200x240/${CATEGORY_COLORS[activeCategory].replace('#', '')}/ffffff?text=${encodeURIComponent(activeCategory + ' templates')}`;
+          }} />
+          <div className="hero-banner-overlay">
+            <h2>{categories.find(c => c.id === activeCategory)?.name} Templates</h2>
+            <p>{categoryDescriptions[activeCategory]}</p>
+          </div>
+        </div>
+
+        <div className="hero-top">
           <h1>Pre-made Templates</h1>
           <p>Start with a professionally designed template and customize every element to match your brand.</p>
+          <button className="btn btn-primary header-cta" onClick={() => navigate('/builder')}>
+            Start from scratch
+          </button>
         </div>
-        <button className="btn btn-primary header-cta" onClick={() => navigate('/builder')}>
-          Start from scratch
-        </button>
-      </header>
 
-      <div className="customizable-banner">
-        <span className="banner-icon">✨</span>
-        <span>All templates are fully customizable — edit layouts, colors, fonts, and content in the builder.</span>
-      </div>
+        <div className="category-hero-cards">
+          {categories.map(cat => {
+            const heroImage = categoryHeroImages[cat.id];
+            return (
+              <div
+                key={cat.id}
+                className={`category-hero-card ${activeCategory === cat.id ? 'active' : ''}`}
+                onClick={() => setActiveCategory(cat.id)}
+              >
+                <div className="category-hero-image">
+                  <img src={heroImage} alt={cat.name} onError={(e) => {
+                    e.target.src = `https://placehold.co/300x160/${CATEGORY_COLORS[cat.id].replace('#', '')}/ffffff?text=${encodeURIComponent(cat.name)}`;
+                  }} />
+                  <div className="category-hero-overlay">
+                    <span className="category-hero-icon">{cat.icon}</span>
+                  </div>
+                </div>
+                <div className="category-hero-info">
+                  <h3>{cat.name}</h3>
+                  <p>{TEMPLATES[cat.id][0].longDescription}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
       <nav className="gallery-categories">
         {categories.map(cat => (
@@ -185,7 +232,9 @@ function TemplateGallery() {
               onClick={() => handlePreview(template)}
             >
               <div className="template-preview">
-                <img className="template-image" src={heroImage} alt={template.name} />
+                <img className="template-image" src={heroImage} alt={template.name} onError={(e) => {
+                  e.target.src = `https://placehold.co/600x420/${CATEGORY_COLORS[activeCategory].replace('#', '')}/ffffff?text=${encodeURIComponent(template.name)}`;
+                }} />
                 <div className="template-overlay">
                   <span className="template-badge">Pre-made</span>
                 </div>
@@ -214,7 +263,7 @@ function TemplateGallery() {
                       handleEdit(template);
                     }}
                   >
-                    Use Template
+                    Edit
                   </button>
                 </div>
               </div>

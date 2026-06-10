@@ -33,11 +33,17 @@ const HERO_IMAGES = {
   saas: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=1400&q=80',
 };
 
+function getImage(key) {
+  const src = HERO_IMAGES[key] || 'https://placehold.co/860x240/1e293b/ffffff?text=' + encodeURIComponent(key);
+  return src.replace('w=1400', 'w=860');
+}
+
 const TEMPLATE_PREVIEWS = {
   corporate: {
     name: 'Corporate',
     description: 'Professional business template with clean design',
     category: 'business',
+    image: getImage('corporate'),
     html: `
       <div class="tp-page">
         <header class="tp-header">
@@ -90,6 +96,7 @@ const TEMPLATE_PREVIEWS = {
     name: 'Consulting',
     description: 'Consulting firm layout with case studies',
     category: 'business',
+    image: getImage('consulting'),
     html: `
       <div class="tp-page">
         <header class="tp-header">
@@ -138,6 +145,7 @@ const TEMPLATE_PREVIEWS = {
     name: 'Agency',
     description: 'Creative agency with bold sections and CTAs',
     category: 'business',
+    image: getImage('agency'),
     html: `
       <div class="tp-page">
         <header class="tp-header tp-header-gradient">
@@ -188,6 +196,7 @@ const TEMPLATE_PREVIEWS = {
     name: 'Minimal Portfolio',
     description: 'Clean portfolio showcase with focus on typography',
     category: 'portfolio',
+    image: getImage('minimal'),
     html: `
       <div class="tp-page tp-theme-light">
         <header class="tp-header tp-header-minimal">
@@ -232,6 +241,7 @@ const TEMPLATE_PREVIEWS = {
     name: 'Grid Portfolio',
     description: 'Masonry grid for photographers and designers',
     category: 'portfolio',
+    image: getImage('grid'),
     html: `
       <div class="tp-page tp-theme-dark">
         <header class="tp-header tp-header-minimal">
@@ -279,6 +289,7 @@ const TEMPLATE_PREVIEWS = {
     name: 'Creative Portfolio',
     description: 'Artistic portfolio with experimental layout',
     category: 'portfolio',
+    image: getImage('creative'),
     html: `
       <div class="tp-page">
         <header class="tp-header tp-header-gradient tp-header-accent">
@@ -323,6 +334,7 @@ const TEMPLATE_PREVIEWS = {
     name: 'Shop',
     description: 'Modern online store template',
     category: 'ecommerce',
+    image: getImage('shop'),
     html: `
       <div class="tp-page">
         <header class="tp-header">
@@ -374,6 +386,7 @@ const TEMPLATE_PREVIEWS = {
     name: 'Boutique',
     description: 'Luxury brand shop with refined typography',
     category: 'ecommerce',
+    image: getImage('boutique'),
     html: `
       <div class="tp-page tp-theme-dark tp-theme-gold">
         <header class="tp-header tp-header-minimal tp-header-luxury">
@@ -419,6 +432,7 @@ const TEMPLATE_PREVIEWS = {
     name: 'Minimal Blog',
     description: 'Clean blog layout with readable typography',
     category: 'blog',
+    image: getImage('minimal-blog'),
     html: `
       <div class="tp-page tp-theme-light">
         <header class="tp-header tp-header-minimal">
@@ -470,6 +484,7 @@ const TEMPLATE_PREVIEWS = {
     name: 'Magazine Blog',
     description: 'Magazine-style blog with hero sections',
     category: 'blog',
+    image: getImage('magazine'),
     html: `
       <div class="tp-page tp-theme-magazine">
         <header class="tp-header tp-header-magazine">
@@ -518,6 +533,7 @@ const TEMPLATE_PREVIEWS = {
     name: 'News Portal',
     description: 'News portal with breaking headlines',
     category: 'blog',
+    image: getImage('news'),
     html: `
       <div class="tp-page tp-theme-news">
         <header class="tp-header tp-header-news">
@@ -560,6 +576,7 @@ const TEMPLATE_PREVIEWS = {
     name: 'Startup Landing',
     description: 'Product launch page with social proof',
     category: 'landing',
+    image: getImage('startup'),
     html: `
       <div class="tp-page">
         <header class="tp-header">
@@ -615,12 +632,64 @@ const TEMPLATE_PREVIEWS = {
       </div>
     `,
   },
+  'corporate-blue': {
+    name: 'Corporate Blue',
+    description: 'Enterprise corporate template with professional blue theme',
+    category: 'business',
+    image: getImage('corporate-blue'),
+    html: `
+      <div class="tp-page tp-theme-blue">
+        <header class="tp-header tp-header-blue">
+          <div class="tp-container tp-header-inner">
+            <div class="tp-logo tp-logo-blue">Blue<span>Corp</span></div>
+            <nav class="tp-nav tp-nav-blue">
+              <a href="#">Home</a><a href="#">About</a><a href="#">Services</a><a href="#">Contact</a>
+            </nav>
+            <button class="tp-btn tp-btn-blue">Contact Us</button>
+          </div>
+        </header>
+        <section class="tp-hero tp-hero-image tp-hero-blue">
+          <img class="tp-hero-image-img" src="${HERO_IMAGES['corporate-blue']}" alt="Corporate Blue" />
+          <div class="tp-hero-overlay">
+            <div class="tp-container">
+              <h1>Enterprise Solutions for Modern Business</h1>
+              <p>Professional corporate design for large organizations and enterprise teams.</p>
+              <div class="tp-actions">
+                <button class="tp-btn tp-btn-blue">Get Started</button>
+                <button class="tp-btn tp-btn-ghost">Learn More</button>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="tp-section">
+          <div class="tp-container">
+            <h2 class="tp-section-title">Our Services</h2>
+            <div class="tp-grid tp-grid-3">
+              <div class="tp-card"><div class="tp-icon">🏢</div><h3>Enterprise Solutions</h3><p>Scalable platforms for large organizations.</p></div>
+              <div class="tp-card"><div class="tp-icon">🔐</div><h3>Security</h3><p>Enterprise-grade security and compliance.</p></div>
+              <div class="tp-card"><div class="tp-icon">📈</div><h3>Growth</h3><p>Data-driven strategies for measurable results.</p></div>
+            </div>
+          </div>
+        </section>
+        <footer class="tp-footer tp-footer-blue">
+          <div class="tp-container">
+            <div class="tp-footer-grid">
+              <div><div class="tp-logo tp-logo-blue">Blue<span>Corp</span></div><p>Trusted by Fortune 500 companies.</p></div>
+              <div><h4>Company</h4><a href="#">About</a><a href="#">Careers</a><a href="#">Press</a></div>
+              <div><h4>Support</h4><a href="#">Help Center</a><a href="#">Contact</a></div>
+              <div><h4>Legal</h4><a href="#">Privacy</a><a href="#">Terms</a></div>
+            </div>
+            <div class="tp-footer-bottom">© 2025 BlueCorp Inc.</div>
+          </div>
+        </footer>
+      </div>
+    `,
+  },
 };
 
 function TemplatePreview({ templateId, onClose, onEdit }) {
   const template = TEMPLATE_PREVIEWS[templateId];
   if (!template) return null;
-
   return (
     <div className="preview-modal" onClick={onClose}>
       <div className="preview-content" onClick={(e) => e.stopPropagation()}>
@@ -643,6 +712,11 @@ function TemplatePreview({ templateId, onClose, onEdit }) {
         
         <div className="preview-body">
           <h2>{template.name}</h2>
+          <div className="preview-image">
+            <img src={template.image} alt={template.name} onError={(e) => {
+              e.target.src = `https://placehold.co/860x240/1e293b/ffffff?text=${encodeURIComponent(template.name)}`;
+            }} />
+          </div>
           <p className="preview-description">{template.description}</p>
           <div className="preview-actions">
             <button className="btn btn-secondary" onClick={onClose}>Close</button>
